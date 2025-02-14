@@ -1,7 +1,7 @@
 package friends.aidelivery.common;
 
 import friends.aidelivery.common.application.dto.CommonResponse;
-import friends.aidelivery.common.exception.CommonResultCode;
+import friends.aidelivery.common.exception.code.CommonResultCode;
 import friends.aidelivery.common.util.ResponseVOUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
