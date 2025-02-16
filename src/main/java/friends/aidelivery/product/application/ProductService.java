@@ -10,7 +10,6 @@ import friends.aidelivery.product.domain.enums.ProductStatus;
 import friends.aidelivery.product.domain.repository.ProductCategoryRepository;
 import friends.aidelivery.product.domain.repository.ProductRepository;
 import friends.aidelivery.product.exception.ProductCategoryNotFoundException;
-import friends.aidelivery.store.application.StoreService;
 import friends.aidelivery.store.domain.Store;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
-    private final StoreService storeService;
 
     public ProductCategoryResponse createProductCategory(ProductCategoryCreateRequest request) {
         /*
