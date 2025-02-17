@@ -4,6 +4,8 @@ import friends.aidelivery.payments.domain.Payments;
 import friends.aidelivery.payments.domain.repository.PaymentsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,45 +13,35 @@ import java.util.UUID;
 @Service
 public class PaymentsService {
 
-    private final PaymentsRepository paymentsRepository;
-
     @Autowired
-    public PaymentsService(PaymentsRepository paymentsRepository) {
-        this.paymentsRepository = paymentsRepository;
-    }
+    private PaymentsRepository paymentsRepository;
 
-    // 결제 저장
-    public Payments createPayment(Payments payment) {
+    @Transactional
+    public Payments requestPayment(String userId, String orderId, Double paymentAmount, String createdBy) {
+        // 결제 요청을 처리하는 로직
+        Payments payment = new Payments();
+        payment.setUserId(userId);
+        payment.setOrderId(orderId);
+        payment.setPayment(paymentAmount);
+        payment.setPaymentState("REQUESTED");
         payment.setCreatedAt(LocalDateTime.now());
-        payment.setCreatedBy("System");
+        payment.setCreatedBy(createdBy);
+
+        // 결제 요청 저장
         return paymentsRepository.save(payment);
     }
 
-    // 결제 조회
-    public Optional<Payments> getPayment(UUID paymentIdx) {
-        return paymentsRepository.findByPaymentIdx(paymentIdx);
-    }
+    @Transactional
+    public Payments approvePayment(UUID paymentIdx, String updatedBy) {
+        // 결제 승인을 처리하는 로직
+        Payments payment = paymentsRepository.findById(paymentIdx)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
 
-    // 결제 상태 업데이트
-    public Optional<Payments> updatePaymentState(UUID paymentIdx, String newState) {
-        Optional<Payments> payment = paymentsRepository.findByPaymentIdx(paymentIdx);
-        payment.ifPresent(p -> {
-            p.setPaymentState(newState);
-            p.setUpdatedAt(LocalDateTime.now());
-            p.setUpdatedBy("System");
-            paymentsRepository.save(p);
-        });
-        return payment;
-    }
-
-    // 결제 삭제 (soft delete)
-    public Optional<Payments> deletePayment(UUID paymentIdx) {
-        Optional<Payments> payment = paymentsRepository.findByPaymentIdx(paymentIdx);
-        payment.ifPresent(p -> {
-            p.setDeletedAt(LocalDateTime.now());
-            p.setDeletedBy("System");  // 예시로 시스템이 삭제한 것으로 설정
-            paymentsRepository.save(p);
-        });
-        return payment;
+        //결제 상태를 approved로 변경
+        payment.setPaymentState("APPROVED");
+        payment.setUpdatedAt(LocalDateTime.now()); //현재 시간
+        payment.setUpdatedBy(updatedBy); //수정자 설정
+        
+        return paymentsRepository.save(payment); //업데이트 정보 저장
     }
 }

@@ -3,7 +3,6 @@ package friends.aidelivery.payments.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,7 +22,6 @@ public class Payments {
     @Column(name = "payment_idx")
     private UUID paymentIdx;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "paymentState")
     private String paymentState;
 
@@ -32,6 +30,9 @@ public class Payments {
 
     @Column(name = "userId")
     private String userId;
+
+    @Column(name = "orderId")
+    private String orderId;
 
     @Column(name = "created_at")
     private LocalDateTime created_at;
@@ -50,5 +51,21 @@ public class Payments {
 
     @Column(name = "deleted_by")
     private String deleted_by;
+
+    public void setCreatedAt(LocalDateTime now) {
+        this.created_at = created_at;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.created_by = createdBy;
+    }
+
+    public void setUpdatedAt(LocalDateTime now) {
+        this.updated_at = updated_at;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updated_by = updatedBy;
+    }
 }
 
