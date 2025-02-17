@@ -2,7 +2,6 @@ package friends.aidelivery.common.application.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.lang.Nullable;
 
 /**
  * 공통 응답 필드
@@ -13,8 +12,16 @@ public class CommonResponse {
 
     private int code;
     private String message;
-
-    @Nullable
     private Object results;
 
+    public CommonResponse(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public CommonResponse(int code, String message, Object results) {
+        this.code = code;
+        this.message = message;
+        this.results = results;
+    }
 }

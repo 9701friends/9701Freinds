@@ -1,20 +1,17 @@
-package friends.aidelivery.common.exception;
+package friends.aidelivery.common.exception.code;
 
 public enum CommonResultCode {
 
-    /**
-     * 성공 처리
-     */
     SUCCESS(200, "요청 성공"),
 
-    /**
-     * 로그인이 안 되어 있어 권한이 없는 경우
-     */
-    UNAUTHORIZED(401, "권한이 없습니다."),
+    BAD_REQUEST(400, "잘못된 요청입니다."),
 
-    /**
-     * 서버 에러
-     */
+    UNAUTHORIZED(401, "유효한 인증 정보가 아닙니다."),
+
+    FORBIDDEN(403, "권한이 없습니다."),
+
+    DATA_NOT_FOUNT(404, "데이터를 찾을 수 없습니다."),
+
     ERROR(500, "서버 에러");
 
     /**
