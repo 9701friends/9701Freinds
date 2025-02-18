@@ -19,7 +19,6 @@ public class PaymentsController {
     //결제 요청
     @PostMapping
     public Payments requestPayment( @RequestBody PaymentsRequestDto paymentRequestDto) {
-        int payment_idx = 1;
         Payments payment = paymentsService.requestPayment(
                 paymentRequestDto.getUser_id(),
                 paymentRequestDto.getOrder_id(),
