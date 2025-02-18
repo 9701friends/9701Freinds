@@ -2,6 +2,7 @@ package friends.aidelivery.payments.presentation;
 
 import friends.aidelivery.payments.domain.Payments;
 import friends.aidelivery.payments.domain.bo.PaymentsService;
+import friends.aidelivery.payments.domain.dto.PaymentsRequestDto;
 import friends.aidelivery.payments.domain.repository.PaymentsRepository;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,17 +21,30 @@ public class PaymentsController {
     @Autowired
     private PaymentsService paymentsService;
 
+    //결제 요청
     @PostMapping
-    public Payments requestPayment(@RequestParam String userId,
-                                  @RequestParam String orderId,
-                                  @RequestParam Double paymentAmount,
-                                  @RequestParam String createdBy) {
-        return paymentsService.requestPayment(userId, orderId, paymentAmount, createdBy);
+    public Payments requestPayment( @RequestBody PaymentsRequestDto paymentRequestDto) {
+        Payments payment = paymentsService.requestPayment(
+                paymentRequestDto.getUserId(),
+                paymentRequestDto.getOrderId(),
+                paymentRequestDto.getPaymentAmount(),
+                paymentRequestDto.getCreatedBy());
+
+        //결제 요청이 들어오자마자 승인 수행
+        paymentsService.approvePayment(payment.getPaymentIdx(), paymentRequestDto.getCreatedBy());
+
+        return payment;
     }
 
+    //결제 승인
     @PostMapping("/approval")
-    public Payments approvePayment(@PathVariable UUID paymentIdx,
+    public ResponseEntity<String> approvePayment(@PathVariable UUID paymentIdx,
                                   @RequestParam String updatedBy) {
-        return paymentsService.approvePayment(paymentIdx, updatedBy);
+        
+        // 결제 승인 로직
+        paymentsService.approvePayment(paymentIdx, updatedBy);
+
+        // 승인 변경 매세지
+        return ResponseEntity.ok("승인이 변경되었습니다.");
     }
 }

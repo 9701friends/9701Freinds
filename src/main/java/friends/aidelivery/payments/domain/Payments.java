@@ -1,6 +1,7 @@
 package friends.aidelivery.payments.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Table(name = "p_payment")
-public class Payments {
+public class Payments { //db에 접근
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,9 +29,11 @@ public class Payments {
     @Column(name = "payment")
     private Double payment;
 
+
     @Column(name = "userId")
     private String userId;
 
+    @JsonProperty("orderId")
     @Column(name = "orderId")
     private String orderId;
 
