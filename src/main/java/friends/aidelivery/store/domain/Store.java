@@ -1,10 +1,20 @@
 package friends.aidelivery.store.domain;
 
+import friends.aidelivery.store.domain.vo.Address;
+import friends.aidelivery.store.domain.vo.Name;
+import friends.aidelivery.store.domain.vo.Rating;
+import friends.aidelivery.store.domain.vo.StoreNumber;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,5 +27,89 @@ public class Store {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "store_id")
     private UUID id;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StoreCategoryMapping> storeCategoryMappingList;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StoreRegionMapping> storeRegionMappingList;
+
+    @Embedded
+    private Name name;
+
+    @Embedded
+    private Address address;
+
+    @Embedded
+    private StoreNumber storeNumber;
+
+    @Embedded
+    private Rating rating;
+
+    public Store(String name,String address,String storeNumber){
+        this.name = new Name(name);
+        this.address = new Address(address);
+        this.storeNumber = new StoreNumber(storeNumber);
+        this.storeCategoryMappingList = new ArrayList<>();
+        this.storeRegionMappingList = new ArrayList<>();
+    }
+
+    /**
+     * TODO 평점 계산
+     */
+    public void CalculateRating(){
+
+    }
+
+    public void addCategories(List<StoreCategory> storeCategoryList){
+        for (StoreCategory index : storeCategoryList) {
+            StoreCategoryMapping mapping = new StoreCategoryMapping(this,index);
+            this.storeCategoryMappingList.add(mapping);
+        }
+    }
+
+    public void addRegions(List<Region> regionList) {
+        for (Region index : regionList) {
+            StoreRegionMapping mapping = new StoreRegionMapping(this,index);
+            this.storeRegionMappingList.add(mapping);
+        }
+    }
+
+    public void removeCategory(StoreCategory storeCategory){
+        storeCategoryMappingList.removeIf(
+            mapping -> mapping.getStoreCategory().equals(storeCategory));
+
+        storeCategory.getStoreCategoryMappingList()
+            .removeIf(mapping -> mapping.getStore().equals(this));
+    }
+
+    public void removeRegion(Region region){
+        storeRegionMappingList.removeIf(mapping -> mapping.getRegion().equals(region));
+
+        region.getStoreRegionMappingList().removeIf(mapping -> mapping.getStore().equals(this));
+    }
+
+    public void updateName(String newName) {
+        this.name.update(newName);
+    }
+
+    public void updateAddress(String newAddress) {
+        this.address.update(newAddress);
+    }
+
+    public void updateNumber(String newNumber) {
+        this.storeNumber.update(newNumber);
+    }
+
+    public void updateCategories(List<StoreCategory> categoryList) {
+        this.storeCategoryMappingList.clear();
+        addCategories(categoryList);
+    }
+
+    public void updateRegions(List<Region> regionList) {
+        this.storeRegionMappingList.clear();
+        addRegions(regionList);
+    }
 }
