@@ -3,6 +3,7 @@ package friends.aidelivery.user.domain.vo;
 import friends.aidelivery.user.domain.exception.UserBadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Email {
+public class Email implements Serializable {
 
     /**
      * 사용자명은 알파벳, 숫자, 밑줄, 대시, 마침표로 구성되어 있고, 숫자 또는 알파벳으로 끝나야 함 도메인은 알파벳 또는 숫자, 마침표로 구성됨 도메인 확장자는 최소 두

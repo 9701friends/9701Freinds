@@ -3,6 +3,7 @@ package friends.aidelivery.user.domain.vo;
 import friends.aidelivery.user.domain.exception.UserBadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @EqualsAndHashCode
-public class Nickname {
+public class Nickname implements Serializable {
 
     public static final int MAX_LENGTH = 20;
 
