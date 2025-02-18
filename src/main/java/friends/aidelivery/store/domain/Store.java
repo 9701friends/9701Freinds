@@ -2,6 +2,7 @@ package friends.aidelivery.store.domain;
 
 import friends.aidelivery.store.domain.vo.Address;
 import friends.aidelivery.store.domain.vo.Name;
+import friends.aidelivery.store.domain.vo.Rating;
 import friends.aidelivery.store.domain.vo.StoreNumber;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,12 +45,22 @@ public class Store {
     @Embedded
     private StoreNumber storeNumber;
 
+    @Embedded
+    private Rating rating;
+
     public Store(String name,String address,String storeNumber){
         this.name = new Name(name);
         this.address = new Address(address);
         this.storeNumber = new StoreNumber(storeNumber);
         this.storeCategoryMappingList = new ArrayList<>();
         this.storeRegionMappingList = new ArrayList<>();
+    }
+
+    /**
+     * TODO 평점 계산
+     */
+    public void CalculateRating(){
+
     }
 
     public void addCategories(List<StoreCategory> storeCategoryList){

@@ -1,5 +1,6 @@
 package friends.aidelivery.store.domain.vo;
 
+import friends.aidelivery.store.domain.Store;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
@@ -28,9 +29,8 @@ public class StoreNumber {
         this.value = value;
     }
 
-    public void update(String value) {
-        validate(value);
-        this.value = value;
+    public StoreNumber update(String value) {
+        return new StoreNumber(value);
     }
 
 }

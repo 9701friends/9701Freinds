@@ -29,9 +29,8 @@ public class Address {
         this.value = value;
     }
 
-    public void update(String value) {
-        validate(value);
-        this.value = value;
+    public Address update(String value) {
+        return new Address(value);
     }
 
 }

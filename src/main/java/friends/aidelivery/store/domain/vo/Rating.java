@@ -2,6 +2,7 @@ package friends.aidelivery.store.domain.vo;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.math.BigDecimal;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,27 +13,27 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Rating {
 
-    private static final int MAX_VALUE = 5;
-    private static final int MIN_VALUE = 1;
+    private static final BigDecimal MAX_VALUE = new BigDecimal("5.0");
+    private static final BigDecimal MIN_VALUE = new BigDecimal("1.0");
 
     @Column(name = "rating", nullable = true)
-    private Long value;
+    private BigDecimal value;
 
-    private void validate(Long value) {
+    private void validate(BigDecimal value) {
         if (value == null) {
             throw new NullPointerException("필수 입력값입니다.");
         }
-        if (value < MIN_VALUE || MAX_VALUE > 5) {
+        if (value.compareTo(MIN_VALUE) < 0 || value.compareTo(MAX_VALUE) > 0) {
             throw new IllegalArgumentException("범위를 벗어났습니다.");
         }
     }
 
-    public Rating(Long value) {
+    public Rating(BigDecimal value) {
         validate(value);
         this.value = value;
     }
 
-    public Rating update(Long value) {
+    public Rating update(BigDecimal value) {
         return new Rating(value);
     }
 }

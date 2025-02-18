@@ -32,9 +32,8 @@ public class Name {
         this.value = value;
     }
 
-    public void update(final String value){
-        validate(value);
-        this.value = value;
+    public Name update(final String value){
+        return new Name(value);
     }
 
 }
