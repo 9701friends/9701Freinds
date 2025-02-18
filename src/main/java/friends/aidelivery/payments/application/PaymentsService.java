@@ -16,18 +16,18 @@ public class PaymentsService {
     private PaymentsRepository paymentsRepository;
 
     @Transactional
-    public Payments requestPayment(String userId, String orderId, Double paymentAmount, String createdBy) {
+    public Payments requestPayment(String user_id, String order_id, Double payment, String createdBy) {
         // 결제 요청을 처리하는 로직
-        Payments payment = new Payments();
-        payment.setUserId(userId);
-        payment.setOrderId(orderId);
-        payment.setPayment(paymentAmount);
-        payment.setPaymentState("REQUESTED");
-        payment.setCreatedAt(LocalDateTime.now());
-        payment.setCreatedBy(createdBy);
+        Payments p = new Payments();
+        p.setUserId(user_id);
+        p.setOrderId(order_id);
+        p.setPayment(payment);
+        p.setPaymentState("REQUESTED");
+        p.setCreatedAt(LocalDateTime.now());
+        p.setCreatedBy(createdBy);
 
         // 결제 요청 저장
-        return paymentsRepository.save(payment);
+        return paymentsRepository.save(p);
     }
 
     @Transactional

@@ -23,17 +23,17 @@ public class Payments { //db에 접근
     @Column(name = "payment_idx")
     private UUID paymentIdx;
 
-    @Column(name = "paymentState")
+    @Column(name = "payment_state")
     private String paymentState;
 
     @Column(name = "payment")
     private Double payment;
 
 
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private String userId;
 
-    @JsonProperty("orderId")
+    @JsonProperty("order_id")
     @Column(name = "orderId")
     private String orderId;
 

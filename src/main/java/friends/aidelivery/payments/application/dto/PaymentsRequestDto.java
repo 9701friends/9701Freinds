@@ -12,9 +12,8 @@ public class PaymentsRequestDto {
     //controller에서 db연결하면 안됨. -> dto를 사용해서!
     //값을 가져오거나 insert를 할때!
 
-    private String userId;
-    @JsonProperty("orderId")
-    private String orderId;
-    private Double paymentAmount;
-    private String createdBy;
+    private String user_id;
+    private String order_id;
+    private Double payment;
+    private String created_by;
 }
