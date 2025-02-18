@@ -1,4 +1,4 @@
-package friends.aidelivery.payments.domain.bo;
+package friends.aidelivery.payments.application;
 
 import friends.aidelivery.payments.domain.Payments;
 import friends.aidelivery.payments.domain.repository.PaymentsRepository;
@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

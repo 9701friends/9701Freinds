@@ -1,17 +1,12 @@
 package friends.aidelivery.payments.presentation;
 
 import friends.aidelivery.payments.domain.Payments;
-import friends.aidelivery.payments.domain.bo.PaymentsService;
-import friends.aidelivery.payments.domain.dto.PaymentsRequestDto;
-import friends.aidelivery.payments.domain.repository.PaymentsRepository;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import friends.aidelivery.payments.application.PaymentsService;
+import friends.aidelivery.payments.application.dto.PaymentsRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController

@@ -1,4 +1,4 @@
-package friends.aidelivery.payments.domain.dto;
+package friends.aidelivery.payments.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
