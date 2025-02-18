@@ -2,9 +2,18 @@ package friends.aidelivery.user.domain.vo;
 
 import friends.aidelivery.user.domain.exception.UserBadRequestException;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@EqualsAndHashCode
 public class Phone {
 
     private static final String PHONE_REGEX = "^010\\d{4}\\d{4}$";

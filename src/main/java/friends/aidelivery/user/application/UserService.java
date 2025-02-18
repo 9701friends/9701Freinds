@@ -22,6 +22,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public ResponseEntity<CommonResponse> singIn(UserCreateRequest userCreateRequest) {
         User user = User.createUser(userCreateRequest, passwordEncoder);
         userRepository.save(user);
