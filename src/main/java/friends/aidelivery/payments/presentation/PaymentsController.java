@@ -42,4 +42,14 @@ public class PaymentsController {
         // 승인 변경 매세지
         return ResponseEntity.ok("승인이 변경되었습니다.");
     }
+
+    //결제 취소
+    @DeleteMapping("/delete/{payment_idx}")
+    public ResponseEntity<String> deletePayment(@PathVariable UUID payment_idx,
+                                                @RequestParam String updated_by) {
+        // 결제 취소 로직
+        paymentsService.cancelPayment(payment_idx, updated_by);
+
+        return ResponseEntity.ok("결제가 취소되었습니다.");
+    }
 }
