@@ -6,7 +6,7 @@ import friends.aidelivery.user.domain.vo.Name;
 import friends.aidelivery.user.domain.vo.Nickname;
 import friends.aidelivery.user.domain.vo.Password;
 import friends.aidelivery.user.domain.vo.Phone;
-import friends.aidelivery.user.domain.vo.UserRoleEnum;
+import friends.aidelivery.user.domain.enums.UserRoleEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package friends.aidelivery.user.domain.vo;
+package friends.aidelivery.user.domain.enums;
 
 public enum UserRoleEnum {
     CUSTOMER, OWNER, MANAGER, MASTER
