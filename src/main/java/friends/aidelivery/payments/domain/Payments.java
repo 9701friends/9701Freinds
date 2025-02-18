@@ -56,7 +56,7 @@ public class Payments { //db에 접근
     private String deleted_by;
 
     public void setCreatedAt(LocalDateTime now) {
-        this.created_at = created_at;
+        this.created_at = now;
     }
 
     public void setCreatedBy(String createdBy) {
@@ -64,7 +64,7 @@ public class Payments { //db에 접근
     }
 
     public void setUpdatedAt(LocalDateTime now) {
-        this.updated_at = updated_at;
+        this.updated_at = now;
     }
 
     public void setUpdatedBy(String updatedBy) {
