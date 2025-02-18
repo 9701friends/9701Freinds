@@ -2,12 +2,16 @@ package friends.aidelivery.user.domain;
 
 import friends.aidelivery.user.domain.vo.Address;
 import friends.aidelivery.user.domain.vo.Email;
+import friends.aidelivery.user.domain.vo.Name;
 import friends.aidelivery.user.domain.vo.Nickname;
 import friends.aidelivery.user.domain.vo.Password;
 import friends.aidelivery.user.domain.vo.Phone;
+import friends.aidelivery.user.domain.vo.UserRoleEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,10 +32,17 @@ public class User {
     private Long id;
 
     @Embedded
+    private Name name;
+
+    @Embedded
     private Email email;
 
     @Embedded
     private Nickname nickname;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserRoleEnum role;
 
     @Embedded
     private Password password;

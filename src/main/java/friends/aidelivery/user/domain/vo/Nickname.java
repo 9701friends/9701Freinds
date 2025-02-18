@@ -1,6 +1,6 @@
 package friends.aidelivery.user.domain.vo;
 
-import friends.aidelivery.user.domain.exception.MemberBadRequestException;
+import friends.aidelivery.user.domain.exception.UserBadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.util.List;
@@ -32,7 +32,7 @@ public class Nickname {
         if (Objects.isNull(value) || value.trim().isEmpty()) {
             this.value = generateNickname();
         } else if (value.length() > MAX_LENGTH) {
-            throw new MemberBadRequestException(517, "닉네임은 20자를 초과할 수 없습니다.");
+            throw new UserBadRequestException(517, "닉네임은 20자를 초과할 수 없습니다.");
         }
     }
 

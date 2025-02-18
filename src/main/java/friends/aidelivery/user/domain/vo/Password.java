@@ -1,6 +1,6 @@
 package friends.aidelivery.user.domain.vo;
 
-import friends.aidelivery.user.domain.exception.MemberBadRequestException;
+import friends.aidelivery.user.domain.exception.UserBadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
@@ -28,7 +28,7 @@ public class Password {
     // 비밀번호 암호화 로직
     private String encryptPassword(final String value, PasswordEncoder passwordEncoder) {
         if (value == null || value.isEmpty()) {
-            throw new MemberBadRequestException(518, "비밀번호는 필수 조건 항목입니다.");
+            throw new UserBadRequestException(518, "비밀번호는 필수 조건 항목입니다.");
         }
         return passwordEncoder.encode(value);  // 비밀번호 암호화
     }

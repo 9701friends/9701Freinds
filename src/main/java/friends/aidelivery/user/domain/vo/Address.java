@@ -1,6 +1,6 @@
 package friends.aidelivery.user.domain.vo;
 
-import friends.aidelivery.user.domain.exception.MemberBadRequestException;
+import friends.aidelivery.user.domain.exception.UserBadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.util.Objects;
@@ -25,7 +25,7 @@ public class Address {
 
     private void validate(final String value) {
         if (Objects.isNull(value)) {
-            throw new MemberBadRequestException(514, "주소는 필수 입력 조건입니다.");
+            throw new UserBadRequestException(514, "주소는 필수 입력 조건입니다.");
         }
     }
 }

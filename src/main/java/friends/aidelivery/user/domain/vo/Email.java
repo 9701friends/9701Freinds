@@ -1,6 +1,6 @@
 package friends.aidelivery.user.domain.vo;
 
-import friends.aidelivery.user.domain.exception.MemberBadRequestException;
+import friends.aidelivery.user.domain.exception.UserBadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.util.Objects;
@@ -32,11 +32,11 @@ public class Email {
 
     private void validate(final String value) {
         if (Objects.isNull(value)) {
-            throw new MemberBadRequestException(510, "이메일은 필수 입력 조건입니다.");
+            throw new UserBadRequestException(510, "이메일은 필수 입력 조건입니다.");
         }
 
         if (isNotEmailFormat(value)) {
-            throw new MemberBadRequestException(511, "제대로 된 이메일이 아닙니다.");
+            throw new UserBadRequestException(511, "제대로 된 이메일이 아닙니다.");
         }
     }
 

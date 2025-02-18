@@ -1,6 +1,6 @@
 package friends.aidelivery.user.domain.vo;
 
-import friends.aidelivery.user.domain.exception.MemberBadRequestException;
+import friends.aidelivery.user.domain.exception.UserBadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.util.Objects;
@@ -27,10 +27,10 @@ public class Name {
 
     private void validate(final String value) {
         if (Objects.isNull(value)) {
-            throw new MemberBadRequestException(512, "이름은 필수 조건 항목입니다.");
+            throw new UserBadRequestException(512, "이름은 필수 조건 항목입니다.");
         }
         if (value.length() > MAX_LENGTH) {
-            throw new MemberBadRequestException(513, "이름은 20자를 초과할 수 없습니다.");
+            throw new UserBadRequestException(513, "이름은 20자를 초과할 수 없습니다.");
         }
     }
 }
