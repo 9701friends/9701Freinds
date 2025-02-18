@@ -1,9 +1,11 @@
 package friends.aidelivery.user.presentation;
 
 import friends.aidelivery.common.application.dto.CommonResponse;
+import friends.aidelivery.common.util.ResponseVOUtils;
 import friends.aidelivery.user.application.UserService;
 import friends.aidelivery.user.application.dto.request.UserCreateRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +22,7 @@ public class UserController {
     @PostMapping("/signIn")
     public ResponseEntity<CommonResponse> signIn(
         @RequestBody final UserCreateRequest userCreateRequest) {
-        return userService.singIn(userCreateRequest);
+        userService.singIn(userCreateRequest);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 }
