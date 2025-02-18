@@ -18,6 +18,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Entity
 @Getter
 @Table(name = "p_user")
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
@@ -78,4 +80,5 @@ public class User {
             new Address(userCreateRequest.address()), new Phone(userCreateRequest.phone())
         );
     }
+
 }
