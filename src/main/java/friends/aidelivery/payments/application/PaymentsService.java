@@ -46,17 +46,19 @@ public class PaymentsService {
         return paymentsRepository.save(payment); //업데이트 정보 저장
     }
 
-    //결제 삭제 처리 로직
+    //결제 취소 처리 로직
     public void cancelPayment(UUID payment_idx, String updated_by) {
         Optional<Payments> paymentOptional = paymentsRepository.findById(payment_idx);
-
 
         if (paymentOptional.isPresent()) {
             Payments payment = paymentOptional.get();
             payment.setPaymentState("CANCELED");  // 상태 변경
             payment.setUpdatedBy(updated_by);
             payment.setUpdatedAt(LocalDateTime.now());
+            payment.setDeletedAt(LocalDateTime.now());
+            payment.setDeletedBy(updated_by);
 
+            //상태 저장
             paymentsRepository.save(payment);
         } else {
             throw new EntityNotFoundException("해당 결제를 찾을 수 없습니다.");
