@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Embeddable
 public class ReviewTime {
 
-    public static final int REVIEW_PERIOD_DAYS = 7;
+    public static final int REVIEW_PERIOD_DAYS = 3;
 
     @Column(name = "review_time", nullable = false)
     private LocalDateTime value;
