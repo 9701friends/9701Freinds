@@ -1,9 +1,11 @@
 package friends.aidelivery.product.domain;
 
+import friends.aidelivery.product.application.dto.request.ProductUpdateRequest;
 import friends.aidelivery.product.domain.enums.ProductStatus;
 import friends.aidelivery.product.domain.vo.Content;
 import friends.aidelivery.product.domain.vo.Name;
 import friends.aidelivery.product.domain.vo.Price;
+import friends.aidelivery.product.exception.ProductNotSellingException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -16,6 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -49,19 +52,8 @@ public class Product {
     @Column(name = "status", nullable = false)
     private ProductStatus status;
 
-    public Product(
-        final ProductCategory productCategory,
-        final Name name,
-        final Content content,
-        final Price price,
-        final ProductStatus status
-    ) {
-        this.productCategory = productCategory;
-        this.name = name;
-        this.content = content;
-        this.price = price;
-        this.status = status;
-    }
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     public Product(final ProductCategory productCategory, final String name, final String content,
         final Long price,
@@ -73,19 +65,31 @@ public class Product {
         this.status = status;
     }
 
-    public void updateName(final String value) {
-        this.name = name.update(value);
+    public void update(final ProductUpdateRequest newProduct) {
+        this.name = name.update(newProduct.name());
+        this.content = content.update(newProduct.content());
+        this.price = price.update(newProduct.price());
     }
 
-    public void updateContent(final String value) {
-        this.content = content.update(value);
-    }
-
-    public void updatePrice(final Long value) {
-        this.price = price.update(value);
+    public void updateCategory(final ProductCategory newProductCategory) {
+        this.productCategory.removeProduct(this);
+        this.productCategory = newProductCategory;
+        this.productCategory.addProduct(this);
     }
 
     public void updateStatus(final ProductStatus status) {
         this.status = status;
+    }
+
+    public void softDelete() {
+        this.status = ProductStatus.HOLD;
+        this.deletedAt = LocalDateTime.now();
+        this.productCategory.removeProduct(this);
+    }
+
+    public void checkSelling() {
+        if (status != ProductStatus.SELLING) {
+            throw new ProductNotSellingException(this.id);
+        }
     }
 }

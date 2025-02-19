@@ -1,5 +1,6 @@
 package friends.aidelivery.product.domain;
 
+import friends.aidelivery.product.application.dto.request.ProductCategoryUpdateRequest;
 import friends.aidelivery.product.domain.vo.Content;
 import friends.aidelivery.product.domain.vo.Name;
 import friends.aidelivery.store.domain.Store;
@@ -15,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -46,15 +48,29 @@ public class ProductCategory {
     @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();
 
-    public ProductCategory(final Store store, final Name name, final Content content) {
-        this.store = store;
-        this.name = name;
-        this.content = content;
-    }
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     public ProductCategory(final Store store, final String name, final String content) {
         this.store = store;
         this.name = new Name(name);
         this.content = new Content(content);
+    }
+
+    public void update(final ProductCategoryUpdateRequest newProductCategory) {
+        this.name = name.update(newProductCategory.name());
+        this.content = content.update(newProductCategory.content());
+    }
+
+    public void addProduct(final Product product) {
+        this.products.add(product);
+    }
+
+    public void removeProduct(final Product product) {
+        this.products.remove(product);
+    }
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }
