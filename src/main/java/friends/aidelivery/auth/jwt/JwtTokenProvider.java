@@ -8,7 +8,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
@@ -36,7 +40,7 @@ public class JwtTokenProvider {
     }
 
     // 토큰 생성
-    public String createToke(String email, UserRoleEnum role) {
+    public String createToken(String email, UserRoleEnum role) {
         Date date = new Date();
         long expirationTime = 86400L * 1000;  // 1일을 밀리초 단위로 변경
 
@@ -71,6 +75,21 @@ public class JwtTokenProvider {
         } catch (JwtException e) {
             log.error("JWT token validation failed: {}", e.getMessage());
             throw new JwtTokenException(590, "유효하지 않은 JWT 토큰입니다.");
+        }
+    }
+
+    // JWT Cookie 에 저장
+    public void addJwtToCookie(String token, HttpServletResponse res) {
+        try {
+            token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
+
+            Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name-Value
+            cookie.setPath("/");
+
+            // Response 객체에 Cookie 추가
+            res.addCookie(cookie);
+        } catch (UnsupportedEncodingException e) {
+            log.error(e.getMessage());
         }
     }
 }

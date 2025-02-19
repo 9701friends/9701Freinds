@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @EqualsAndHashCode
-public class Phone implements Serializable {
+public class Phone  {
 
     private static final String PHONE_REGEX = "^010\\d{4}\\d{4}$";
 

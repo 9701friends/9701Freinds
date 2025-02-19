@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
 @Getter
-public class Address implements Serializable {
+public class Address  {
 
     @Column(name = "address", nullable = false)
     private String value;

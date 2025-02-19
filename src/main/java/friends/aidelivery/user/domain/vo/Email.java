@@ -11,11 +11,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode
+@EqualsAndHashCode//(onlyExplicitlyIncluded = true)
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Email implements Serializable {
+public class Email {
 
     /**
      * 사용자명은 알파벳, 숫자, 밑줄, 대시, 마침표로 구성되어 있고, 숫자 또는 알파벳으로 끝나야 함 도메인은 알파벳 또는 숫자, 마침표로 구성됨 도메인 확장자는 최소 두
@@ -23,12 +23,13 @@ public class Email implements Serializable {
      */
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,8}$";
 
+    //@EqualsAndHashCode.Include
     @Column(name = "email", nullable = false, unique = true)
     private String value;
 
     public Email(final String value) {
         validate(value);
-        this.value = value;
+        this.value = value.toLowerCase();
     }
 
     private void validate(final String value) {

@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
 @EqualsAndHashCode
-public class Password implements Serializable {
+public class Password  {
 
     private String value;
 

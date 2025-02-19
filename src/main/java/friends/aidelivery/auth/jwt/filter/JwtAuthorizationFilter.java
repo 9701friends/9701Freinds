@@ -1,6 +1,7 @@
 package friends.aidelivery.auth.jwt.filter;
 
 import friends.aidelivery.auth.jwt.JwtTokenProvider;
+import friends.aidelivery.user.domain.vo.Email;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,6 +29,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain)
         throws ServletException, IOException {
+
         String token = jwtTokenProvider.getJwtFromHeader(request);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
@@ -39,7 +41,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null,
                     userDetails.getAuthorities());
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 

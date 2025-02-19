@@ -9,4 +9,6 @@ public interface UserRepository {
     User save(User user);
 
     Optional<User> findByEmail(Email email);
+
+    Optional<User> findById(Long id);
 }

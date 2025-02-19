@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @EqualsAndHashCode
-public class Name implements Serializable {
+public class Name {
 
     public static final int MAX_LENGTH = 20;
 
