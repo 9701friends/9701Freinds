@@ -1,6 +1,6 @@
-package friends.aidelivery.auth.jwt;
+package friends.aidelivery.common.infrastructure.security;
 
-import friends.aidelivery.auth.jwt.exception.JwtTokenException;
+import friends.aidelivery.common.exception.JwtTokenException;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

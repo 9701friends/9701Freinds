@@ -1,7 +1,6 @@
-package friends.aidelivery.auth.jwt.filter;
+package friends.aidelivery.common.infrastructure.security.filter;
 
-import friends.aidelivery.auth.jwt.JwtTokenProvider;
-import friends.aidelivery.user.domain.vo.Email;
+import friends.aidelivery.common.infrastructure.security.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
