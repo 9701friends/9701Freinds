@@ -3,6 +3,7 @@ package friends.aidelivery.user.domain.vo;
 import friends.aidelivery.user.domain.exception.UserBadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @EqualsAndHashCode
-public class Phone {
+public class Phone  {
 
     private static final String PHONE_REGEX = "^010\\d{4}\\d{4}$";
 

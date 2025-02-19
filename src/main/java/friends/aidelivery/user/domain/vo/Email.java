@@ -3,6 +3,7 @@ package friends.aidelivery.user.domain.vo;
 import friends.aidelivery.user.domain.exception.UserBadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
@@ -10,7 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode
+@EqualsAndHashCode//(onlyExplicitlyIncluded = true)
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -22,12 +23,13 @@ public class Email {
      */
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,8}$";
 
+    //@EqualsAndHashCode.Include
     @Column(name = "email", nullable = false, unique = true)
     private String value;
 
     public Email(final String value) {
         validate(value);
-        this.value = value;
+        this.value = value.toLowerCase();
     }
 
     private void validate(final String value) {
