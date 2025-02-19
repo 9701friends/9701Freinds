@@ -37,4 +37,8 @@ public class Rating {
             throw new ReviewRatingMaxException(MAX_RATING, value);
         }
     }
+
+    public Rating update(final Integer value) {
+        return new Rating(value);
+    }
 }

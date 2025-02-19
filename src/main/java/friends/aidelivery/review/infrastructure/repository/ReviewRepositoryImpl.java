@@ -3,6 +3,7 @@ package friends.aidelivery.review.infrastructure.repository;
 import friends.aidelivery.review.domain.Review;
 import friends.aidelivery.review.domain.repository.ReviewRepository;
 import friends.aidelivery.review.infrastructure.jpa.ReviewJpaRepository;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -21,5 +22,10 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     @Override
     public boolean existsByOrderId(UUID orderId) {
         return jpaRepository.existsByOrderId(orderId);
+    }
+
+    @Override
+    public Optional<Review> findById(UUID reviewId) {
+        return jpaRepository.findById(reviewId);
     }
 }

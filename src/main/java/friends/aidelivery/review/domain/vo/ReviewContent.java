@@ -28,4 +28,8 @@ public class ReviewContent {
             throw new ReviewContentLengthException(MAX_LENGTH, value);
         }
     }
+
+    public ReviewContent update(final String value) {
+        return new ReviewContent(value);
+    }
 }
