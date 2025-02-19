@@ -1,6 +1,6 @@
 package friends.aidelivery.user.domain;
 
-import friends.aidelivery.user.application.dto.request.UserCreateRequest;
+import friends.aidelivery.user.application.dto.request.UserInfoRequestDto;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
 import friends.aidelivery.user.domain.vo.Address;
 import friends.aidelivery.user.domain.vo.Email;
@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.w3c.dom.NamedNodeMap;
 
 @Entity
 @Getter
@@ -69,8 +70,18 @@ public class User implements Serializable {
         this.phone = phone;
     }
 
-    public static User createUser(UserCreateRequest userCreateRequest,
-        PasswordEncoder passwordEncoder) {
+    public void updateUser(UserInfoRequestDto userInfoRequestDto) {
+        this.name = new Name(userInfoRequestDto.name());
+        this.email = new Email(userInfoRequestDto.email());
+        this.nickname = new Nickname(userInfoRequestDto.nickname());
+        this.role = userInfoRequestDto.role();
+        this.password = userInfoRequestDto.password();
+        this.address = new Address(userInfoRequestDto.address());
+        this.phone = new Phone(userInfoRequestDto.phone());
+    }
+
+    public static User createUser(UserInfoRequestDto userCreateRequest,
+                                  PasswordEncoder passwordEncoder) {
 
         return new User(
             new Name(userCreateRequest.name()),

@@ -1,9 +1,9 @@
 package friends.aidelivery.user.application;
 
-import friends.aidelivery.user.application.dto.request.UserCreateRequest;
-import friends.aidelivery.user.application.dto.request.UserLoginRequest;
-import friends.aidelivery.user.application.dto.response.UserCreateResponse;
-import friends.aidelivery.user.application.dto.response.UserLoginResponse;
+import friends.aidelivery.user.application.dto.request.UserInfoRequestDto;
+import friends.aidelivery.user.application.dto.request.UserLoginRequestDto;
+import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
+import friends.aidelivery.user.application.dto.response.UserResponseDto;
 import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.repository.UserRepository;
 import friends.aidelivery.user.domain.vo.Email;
@@ -23,32 +23,40 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserCreateResponse singIn(UserCreateRequest userCreateRequest) {
-        User user = User.createUser(userCreateRequest, passwordEncoder);
+    public UserInfoResponseDto singIn(UserInfoRequestDto userInfoRequestDto) {
+        User user = User.createUser(userInfoRequestDto, passwordEncoder);
         User saved = userRepository.save(user);
-        return UserCreateResponse.of(saved);
+        return UserInfoResponseDto.of(saved);
     }
 
-    public UserLoginResponse login(UserLoginRequest userLoginRequest){
+    public UserResponseDto login(UserLoginRequestDto userLoginRequest) {
 
         Email email = new Email(userLoginRequest.getEmail());
         String encodedPassword = passwordEncoder.encode(userLoginRequest.getPassword());
 
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User Not Found"));
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
 
         if (!encodedPassword.equals(user.getPassword())) {
             throw new RuntimeException("Missmatch Password");
         }
 
-        return UserLoginResponse.of(user);
+        return UserResponseDto.of(user);
     }
 
-    public UserLoginResponse findUser(Long userId) {
+    public UserResponseDto findUser(Long userId) {
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User Not Found"));
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
 
-        return UserLoginResponse.of(user);
+        return UserResponseDto.of(user);
+    }
+
+    @Transactional
+    public UserResponseDto updateUserInfo(Long userId, UserInfoRequestDto userInfoRequestDto) {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
+        user.updateUser(userInfoRequestDto);
+        return UserResponseDto.of(user);
     }
 }
