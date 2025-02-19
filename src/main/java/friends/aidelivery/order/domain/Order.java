@@ -3,8 +3,10 @@ package friends.aidelivery.order.domain;
 import friends.aidelivery.order.application.dto.request.OrderCreateRequest;
 import friends.aidelivery.order.domain.enums.OrderStatus;
 import friends.aidelivery.order.domain.enums.OrderType;
+import friends.aidelivery.order.exception.OrderNotCompletedException;
 import friends.aidelivery.product.domain.Product;
 import friends.aidelivery.store.domain.Store;
+import friends.aidelivery.user.domain.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,8 +43,9 @@ public class Order {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_type", nullable = false)
@@ -70,12 +73,12 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderProduct> orderProducts;
 
-    private Order(final Long userId, final Store store, final OrderType orderType,
+    private Order(final User user, final Store store, final OrderType orderType,
         final String orderAddress,
         final String comment, final LocalDateTime orderTime, final Long totalPrice,
         final OrderStatus orderStatus,
         final Map<Product, Integer> productQuantityMap) {
-        this.userId = userId;
+        this.user = user;
         this.store = store;
         this.orderType = orderType;
         this.orderStatus = orderStatus;
@@ -87,13 +90,13 @@ public class Order {
     }
 
     public static Order create(
-        final Long userId,
+        final User user,
         final Store store,
         final OrderCreateRequest request,
         final Long totalPrice,
         final Map<Product, Integer> productQuantityMap
     ) {
-        return new Order(userId, store, request.orderType(), request.orderAddress(),
+        return new Order(user, store, request.orderType(), request.orderAddress(),
             request.comment(), request.orderTime(), totalPrice, OrderStatus.PAYMENT_PENDING,
             productQuantityMap);
     }
@@ -103,6 +106,15 @@ public class Order {
             .map(entry ->
                 OrderProduct.create(this, entry.getKey(), entry.getValue()))
             .toList();
+    }
+
+    public void checkOrderCompleted() {
+        if (this.orderStatus != OrderStatus.ORDER_COMPLETED) {
+            throw new OrderNotCompletedException(this.id);
+        }
+        if (this.completionTime == null) {
+            throw new OrderNotCompletedException(this.id);
+        }
     }
 
 }

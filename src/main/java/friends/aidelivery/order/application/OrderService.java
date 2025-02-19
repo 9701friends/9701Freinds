@@ -5,11 +5,14 @@ import friends.aidelivery.order.application.dto.response.OrderResponse;
 import friends.aidelivery.order.domain.Order;
 import friends.aidelivery.order.domain.repository.OrderProductRepository;
 import friends.aidelivery.order.domain.repository.OrderRepository;
+import friends.aidelivery.order.exception.OrderNotFoundException;
 import friends.aidelivery.product.application.ProductService;
 import friends.aidelivery.product.domain.Product;
 import friends.aidelivery.store.domain.Store;
 import friends.aidelivery.store.domain.repository.StoreRepository;
 import friends.aidelivery.store.exception.StoreNotFoundException;
+import friends.aidelivery.user.domain.User;
+import friends.aidelivery.user.domain.repository.UserRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +30,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
     private final StoreRepository storeRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public OrderResponse createOrder(final OrderCreateRequest request) {
@@ -42,7 +46,8 @@ public class OrderService {
          */
 
         // todo 1. 유저 검증
-        final Long userId = 1L;
+        final String email = "email.com";
+        final User user = null;
 
         // 가게 검증
         final UUID storeId = request.storeId();
@@ -56,7 +61,7 @@ public class OrderService {
         final Long totalPrice = calculateTotalPrice(productQuantityMap);
 
         // 주문 저장 (초기 상태: 결제 대기)
-        Order order = Order.create(userId, store, request, totalPrice, productQuantityMap);
+        Order order = Order.create(user, store, request, totalPrice, productQuantityMap);
         Order saved = orderRepository.save(order);
 
         return OrderResponse.of(saved);
@@ -92,5 +97,13 @@ public class OrderService {
     private Long calculatePrice(final Long price, final Integer quantity) {
         return price * quantity;
     }
+
+    public Order validateOrderForReview(final UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new OrderNotFoundException(orderId));
+        order.checkOrderCompleted();
+        return order;
+    }
+
 
 }
