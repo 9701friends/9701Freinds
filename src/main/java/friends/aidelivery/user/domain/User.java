@@ -1,5 +1,6 @@
 package friends.aidelivery.user.domain;
 
+import friends.aidelivery.admin.application.dto.request.AdminUserUpdateRequest;
 import friends.aidelivery.user.application.dto.request.UserInfoRequestDto;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
 import friends.aidelivery.user.domain.vo.Address;
@@ -78,6 +79,16 @@ public class User implements Serializable {
         this.password = userInfoRequestDto.password();
         this.address = new Address(userInfoRequestDto.address());
         this.phone = new Phone(userInfoRequestDto.phone());
+    }
+
+    public void updateUserByAdmin(AdminUserUpdateRequest request) {
+        this.address = new Address(request.address());
+        this.role = request.role();
+        this.phone = new Phone(request.phone());
+    }
+
+    public void updateUserRole(UserRoleEnum role){
+        this.role = role;
     }
 
     public static User createUser(UserInfoRequestDto userCreateRequest,

@@ -1,5 +1,6 @@
 package friends.aidelivery.user.presentation;
 
+import friends.aidelivery.auth.jwt.application.dto.UserDetailsImpl;
 import friends.aidelivery.common.application.dto.CommonResponse;
 import friends.aidelivery.common.util.ResponseVOUtils;
 import friends.aidelivery.user.application.UserService;
@@ -8,11 +9,11 @@ import friends.aidelivery.user.application.dto.request.UserLoginRequestDto;
 import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
 import friends.aidelivery.user.application.dto.response.UserResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,16 +40,16 @@ public class UserController {
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
-    @GetMapping("{user_id}")
-    public ResponseEntity<CommonResponse> findUser(@PathVariable Long user_id) {
-        UserResponseDto response = userService.findUser(user_id);
-
+    @PostMapping("/logout")
+    public ResponseEntity<CommonResponse> logout(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        UserResponseDto response = userService.logout(userDetails);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
+
     @PutMapping("/{user_id}")
-    public ResponseEntity<CommonResponse> updateUser(@PathVariable Long user_id, @RequestBody UserInfoRequestDto requestDto) {
-        UserResponseDto response = userService.updateUserInfo(user_id, requestDto);
+    public ResponseEntity<CommonResponse> updateUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long user_id, @RequestBody UserInfoRequestDto requestDto) {
+        UserResponseDto response = userService.updateUserInfo(userDetails,user_id, requestDto);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
@@ -59,4 +60,14 @@ public class UserController {
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
+
+
+    @GetMapping("/{user_id}")
+    public ResponseEntity<CommonResponse> findUserInfo(@PathVariable Long user_id,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        UserResponseDto response = userService.findUserInfo(user_id,userDetails);
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
+    }
+
+
 }
