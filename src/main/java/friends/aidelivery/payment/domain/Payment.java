@@ -29,7 +29,6 @@ public class Payment { //db에 접근
     @Column(name = "payment")
     private Double payment;
 
-
     @Column(name = "user_id")
     private String userId;
 
@@ -55,6 +54,7 @@ public class Payment { //db에 접근
     @Column(name = "deleted_by")
     private String deleted_by;
 
+    //결제 생성자
     public Payment(String userId, String orderId, Double payment, String paymentState, LocalDateTime createdAt, String createdBy) {
         this.userId = userId;
         this.orderId = orderId;
@@ -64,6 +64,23 @@ public class Payment { //db에 접근
         this.created_by = createdBy;
     }
 
+    // 결즈 승인 처리 메소드
+    public void approvePaymentSetter(String updatedBy) {
+        this.paymentState = "APPROVED";
+        this.updated_by = updatedBy;
+        this.updated_at = updated_at;
+    }
+
+    // 결제 취소 처리 메서드
+    public void cancelPaymentSetter(String updatedBy) {
+        this.paymentState = "CANCELED";
+        this.updated_by = updatedBy;
+        this.updated_at = LocalDateTime.now();  // 취소 시점 설정
+        this.deleted_at = LocalDateTime.now();  // 취소 시점 설정
+        this.deleted_by = updatedBy;
+    }
+    
+    //getter, setter
     public void setCreatedAt(LocalDateTime now) {this.created_at = now; }
 
     public void setCreatedBy(String createdBy) {
