@@ -8,8 +8,12 @@ import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
 import friends.aidelivery.user.application.dto.response.UserResponseDto;
 import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
+import friends.aidelivery.user.exception.UserMismatchException;
+import friends.aidelivery.user.exception.UserNotFoundException;
 import friends.aidelivery.user.domain.repository.UserRepository;
 import friends.aidelivery.user.domain.vo.Email;
+import friends.aidelivery.user.exception.UserPasswordMismatchException;
+import friends.aidelivery.user.exception.UserUnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -42,10 +46,10 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(userLoginRequest.getPassword());
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User Not Found"));
+            .orElseThrow(UserNotFoundException::new);
 
         if (!encodedPassword.equals(user.getPassword())) {
-            throw new RuntimeException("Missmatch Password");
+            throw new UserPasswordMismatchException();
         }
 
         return UserResponseDto.of(user);
@@ -53,22 +57,23 @@ public class UserService {
 
     public UserResponseDto findUserInfo(Long userId, UserDetailsImpl userDetails) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User Not Found"));
+        User user = getUserOrElseThrow(userId);
 
         if (!userDetails.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("User Not Match");
+            throw new UserMismatchException();
         }
 
         return UserResponseDto.of(user);
     }
 
     @Transactional
-    public UserResponseDto updateUserInfo(UserDetailsImpl userDetails, Long userId, UserInfoRequestDto userInfoRequestDto) {
+    public UserResponseDto updateUserInfo(UserDetailsImpl userDetails, Long userId,
+        UserInfoRequestDto userInfoRequestDto) {
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
-        if(!userDetails.getUser().getId().equals(userId)) {
-            throw new RuntimeException("User Not Match");
+        User user = getUserOrElseThrow(userId);
+
+        if (!userDetails.getUser().getId().equals(userId)) {
+            throw new UserMismatchException();
         }
         user.updateUser(userInfoRequestDto);
         return UserResponseDto.of(user);
@@ -80,22 +85,27 @@ public class UserService {
     }
 
     public UserResponseDto logout(UserDetailsImpl userDetails) {
-/**
- * 프론트에서 토큰을 지워주는거라 딱히 여기서는 뭐 안함
- */
+        /**
+         * 프론트에서 토큰을 지워주는거라 딱히 여기서는 뭐 안함
+         */
         return UserResponseDto.of(userDetails.getUser());
     }
 
     public Page<AdminUserRequestDto> findAllUser(UserDetailsImpl userDetails) {
         if (!userDetails.getUser().getRole().equals(UserRoleEnum.MASTER)) {
-            throw new RuntimeException("권한이 없습니다.");
+            throw new UserUnauthorizedException();
         }
 
         Sort.Direction direction = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(0, 10, Sort.by(direction, "nickname"));
 
-        Page< User> userPage = userRepository.findAll(pageable);
+        Page<User> userPage = userRepository.findAll(pageable);
 
         return userPage.map(AdminUserRequestDto::of);
+    }
+    
+    public User getUserOrElseThrow(Long userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(UserNotFoundException::new);
     }
 }

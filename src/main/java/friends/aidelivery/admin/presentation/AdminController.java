@@ -23,40 +23,42 @@ public class AdminController {
 
     @GetMapping("/users")
     public ResponseEntity<CommonResponse> getUserList(
-            @RequestParam int page,
-            @RequestParam int size,
-            @RequestParam String sortBy,
-            @RequestParam boolean isAsc) {
+        @RequestParam int page,
+        @RequestParam int size,
+        @RequestParam String sortBy,
+        @RequestParam boolean isAsc) {
 
         Page<AdminUserRequestDto> response = adminService.getUserList(page, size, sortBy, isAsc);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
-    @GetMapping("/{user_id}")
-    public ResponseEntity<CommonResponse> findUser(@PathVariable Long user_id) {
-        UserResponseDto response = adminService.findUser(user_id);
+    @GetMapping("/{userId}")
+    public ResponseEntity<CommonResponse> findUser(@PathVariable Long userId) {
+        UserResponseDto response = adminService.findUser(userId);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
-    @PutMapping("/{user_id}")
-    public ResponseEntity<CommonResponse> updateUser(@PathVariable Long user_id, @RequestBody AdminUserUpdateRequest requestDto) {
-        AdminUserUpdateResponse response = adminService.updateUser(user_id, requestDto);
+    @PutMapping("/{userId}")
+    public ResponseEntity<CommonResponse> updateUser(@PathVariable Long userId,
+        @RequestBody AdminUserUpdateRequest requestDto) {
+        AdminUserUpdateResponse response = adminService.updateUser(userId, requestDto);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{user_id}")
-    public ResponseEntity<CommonResponse> deleteUser(@PathVariable Long user_id) {
-        adminService.deleteUser(user_id);
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<CommonResponse> deleteUser(@PathVariable Long userId) {
+        adminService.deleteUser(userId);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 
-    @PutMapping("/{user_id}/status")
-    public ResponseEntity<CommonResponse> updateUserStatus(@PathVariable Long user_id, @RequestBody AdminUserStatusRequestDto requestDto) {
-        AdminUserUpdateResponse response = adminService.updateUserStatus(user_id, requestDto);
+    @PutMapping("/{userId}/status")
+    public ResponseEntity<CommonResponse> updateUserStatus(@PathVariable Long userId,
+        @RequestBody AdminUserStatusRequestDto requestDto) {
+        AdminUserUpdateResponse response = adminService.updateUserStatus(userId, requestDto);
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 }

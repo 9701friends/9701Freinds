@@ -26,14 +26,15 @@ public class UserController {
 
     @PostMapping("/signIn")
     public ResponseEntity<CommonResponse> signIn(
-            @RequestBody final UserInfoRequestDto userInfoRequestDto) {
+        @RequestBody final UserInfoRequestDto userInfoRequestDto) {
         UserInfoResponseDto response = userService.singIn(userInfoRequestDto);
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.CREATED);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
+            HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
     public ResponseEntity<CommonResponse> login(
-            @RequestBody final UserLoginRequestDto userLoginRequest) {
+        @RequestBody final UserLoginRequestDto userLoginRequest) {
 
         UserResponseDto response = userService.login(userLoginRequest);
         log.info("리스폰스 이메일 : {}", response.email());
@@ -41,30 +42,35 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<CommonResponse> logout(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<CommonResponse> logout(
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
         UserResponseDto response = userService.logout(userDetails);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
 
-    @PutMapping("/{user_id}")
-    public ResponseEntity<CommonResponse> updateUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long user_id, @RequestBody UserInfoRequestDto requestDto) {
-        UserResponseDto response = userService.updateUserInfo(userDetails,user_id, requestDto);
+    @PutMapping("/{userId}")
+    public ResponseEntity<CommonResponse> updateUser(
+        @AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long userId,
+        @RequestBody UserInfoRequestDto requestDto) {
+        UserResponseDto response = userService.updateUserInfo(userDetails, userId, requestDto);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{user_id}")
-    public ResponseEntity<CommonResponse> deleteUser(@PathVariable Long user_id, @RequestBody UserLoginRequestDto requestDto) {
-        UserResponseDto response = userService.deleteUser(user_id, requestDto);
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<CommonResponse> deleteUser(@PathVariable Long userId,
+        @RequestBody UserLoginRequestDto requestDto) {
+        UserResponseDto response = userService.deleteUser(userId, requestDto);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
 
-    @GetMapping("/{user_id}")
-    public ResponseEntity<CommonResponse> findUserInfo(@PathVariable Long user_id,@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        UserResponseDto response = userService.findUserInfo(user_id,userDetails);
+    @GetMapping("/{userId}")
+    public ResponseEntity<CommonResponse> findUserInfo(@PathVariable Long userId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        UserResponseDto response = userService.findUserInfo(userId, userDetails);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }

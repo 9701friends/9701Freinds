@@ -1,4 +1,4 @@
-package friends.aidelivery.user.domain.exception;
+package friends.aidelivery.user.exception;
 
 import friends.aidelivery.common.exception.CustomBadRequestException;
 

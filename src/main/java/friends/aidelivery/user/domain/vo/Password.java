@@ -1,14 +1,13 @@
 package friends.aidelivery.user.domain.vo;
 
-import friends.aidelivery.user.domain.exception.UserBadRequestException;
-import java.io.Serializable;
+import friends.aidelivery.user.exception.UserBadRequestException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
 @EqualsAndHashCode
-public class Password  {
+public class Password {
 
     private String value;
 

@@ -1,9 +1,8 @@
 package friends.aidelivery.user.domain.vo;
 
-import friends.aidelivery.user.domain.exception.UserBadRequestException;
+import friends.aidelivery.user.exception.UserBadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import java.io.Serializable;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -14,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
 @Getter
-public class Address  {
+public class Address {
 
     @Column(name = "address", nullable = false)
     private String value;
