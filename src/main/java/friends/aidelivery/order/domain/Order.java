@@ -3,6 +3,7 @@ package friends.aidelivery.order.domain;
 import friends.aidelivery.order.application.dto.request.OrderCreateRequest;
 import friends.aidelivery.order.domain.enums.OrderStatus;
 import friends.aidelivery.order.domain.enums.OrderType;
+import friends.aidelivery.order.exception.OrderCancelException;
 import friends.aidelivery.order.exception.OrderNotCompletedException;
 import friends.aidelivery.product.domain.Product;
 import friends.aidelivery.store.domain.Store;
@@ -23,6 +24,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -97,7 +99,7 @@ public class Order {
         final Map<Product, Integer> productQuantityMap
     ) {
         return new Order(user, store, request.orderType(), request.orderAddress(),
-            request.comment(), request.orderTime(), totalPrice, OrderStatus.PAYMENT_PENDING,
+            request.comment(), request.orderTime(), totalPrice, OrderStatus.PENDING,
             productQuantityMap);
     }
 
@@ -109,7 +111,7 @@ public class Order {
     }
 
     public void checkOrderCompleted() {
-        if (this.orderStatus != OrderStatus.ORDER_COMPLETED) {
+        if (this.orderStatus != OrderStatus.COMPLETED) {
             throw new OrderNotCompletedException(this.id);
         }
         if (this.completionTime == null) {
@@ -117,4 +119,34 @@ public class Order {
         }
     }
 
+    public void cancelOrder(final Long userId, final LocalDateTime cancelTime) {
+        validateCustomer(userId);
+        validateCancel(cancelTime);
+        this.orderStatus = OrderStatus.CANCELED;
+    }
+
+    private void validateCancel(final LocalDateTime cancelTime) {
+        final long allowed = 5;
+        if (this.orderTime.isBefore(cancelTime.minusMinutes(allowed))) {
+            throw new OrderCancelException(allowed);
+        }
+    }
+
+    public void acceptOrder(final Long userId) {
+        this.orderStatus = OrderStatus.PENDING;
+    }
+
+    public void rejectOrder(final Long userId) {
+        this.orderStatus = OrderStatus.REJECTED;
+    }
+
+    private void validateCustomer(final Long userId) {
+        if (!Objects.equals(user.getId(), userId)) {
+            throw new OrderNotCompletedException(this.id);
+        }
+    }
+
+    private void validateOwner(final String email) {
+        // todo 가게주인과 맞는지 검증 로직 필요
+    }
 }
