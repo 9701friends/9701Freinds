@@ -1,4 +1,4 @@
-package friends.aidelivery.auth.jwt.application.dto;
+package friends.aidelivery.common.infrastructure.security;
 
 import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
@@ -33,7 +33,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getPassword() {
-        return String.valueOf(user.getPassword());
+        return user.getPassword();
     }
 
     @Override

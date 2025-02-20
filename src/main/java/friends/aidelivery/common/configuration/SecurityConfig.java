@@ -1,8 +1,8 @@
 package friends.aidelivery.common.configuration;
 
-import friends.aidelivery.auth.jwt.JwtTokenProvider;
-import friends.aidelivery.auth.jwt.filter.JwtAuthenticationFilter;
-import friends.aidelivery.auth.jwt.filter.JwtAuthorizationFilter;
+import friends.aidelivery.common.infrastructure.security.JwtTokenProvider;
+import friends.aidelivery.common.infrastructure.security.filter.JwtAuthenticationFilter;
+import friends.aidelivery.common.infrastructure.security.filter.JwtAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

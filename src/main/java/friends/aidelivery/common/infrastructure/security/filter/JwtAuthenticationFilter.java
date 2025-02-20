@@ -1,9 +1,9 @@
-package friends.aidelivery.auth.jwt.filter;
+package friends.aidelivery.common.infrastructure.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import friends.aidelivery.auth.jwt.JwtTokenProvider;
-import friends.aidelivery.auth.jwt.application.dto.UserDetailsImpl;
-import friends.aidelivery.auth.jwt.exception.JwtTokenException;
+import friends.aidelivery.common.infrastructure.security.JwtTokenProvider;
+import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
+import friends.aidelivery.common.exception.JwtTokenException;
 import friends.aidelivery.user.application.dto.request.UserLoginRequestDto;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
 import jakarta.servlet.FilterChain;

@@ -1,6 +1,4 @@
-package friends.aidelivery.auth.jwt.exception;
-
-import friends.aidelivery.common.exception.CustomUnauthorizedException;
+package friends.aidelivery.common.exception;
 
 public class JwtTokenException extends CustomUnauthorizedException {
 

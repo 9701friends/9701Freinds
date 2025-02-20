@@ -1,7 +1,6 @@
-package friends.aidelivery.auth.jwt.application.dto;
+package friends.aidelivery.common.infrastructure.security;
 
 import friends.aidelivery.user.domain.User;
-import friends.aidelivery.user.domain.exception.UserBadRequestException;
 import friends.aidelivery.user.domain.repository.UserRepository;
 import friends.aidelivery.user.domain.vo.Email;
 import lombok.RequiredArgsConstructor;
