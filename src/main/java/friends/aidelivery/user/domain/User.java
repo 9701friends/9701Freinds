@@ -24,7 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.w3c.dom.NamedNodeMap;
 
 @Entity
 @Getter
@@ -60,6 +59,9 @@ public class User implements Serializable {
     @Embedded
     private Phone phone;
 
+    @Column(nullable = false)
+    private Boolean isDeleted;
+
     private User(Name name, Email email, Nickname nickname, UserRoleEnum role,
         String encryptedPassword, Address address, Phone phone) {
         this.name = name;
@@ -69,6 +71,7 @@ public class User implements Serializable {
         this.password = encryptedPassword;
         this.address = address;
         this.phone = phone;
+        this.isDeleted = false;
     }
 
     public void updateUser(UserInfoRequestDto userInfoRequestDto) {
@@ -87,12 +90,12 @@ public class User implements Serializable {
         this.phone = new Phone(request.phone());
     }
 
-    public void updateUserRole(UserRoleEnum role){
+    public void updateUserRole(UserRoleEnum role) {
         this.role = role;
     }
 
     public static User createUser(UserInfoRequestDto userCreateRequest,
-                                  PasswordEncoder passwordEncoder) {
+        PasswordEncoder passwordEncoder) {
 
         return new User(
             new Name(userCreateRequest.name()),
@@ -104,4 +107,7 @@ public class User implements Serializable {
         );
     }
 
+    public void softDeleteUser() {
+        this.isDeleted = true;
+    }
 }
