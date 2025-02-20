@@ -32,15 +32,6 @@ public class UserController {
             HttpStatus.CREATED);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<CommonResponse> login(
-        @RequestBody final UserLoginRequestDto userLoginRequest) {
-
-        UserResponseDto response = userService.login(userLoginRequest);
-        log.info("리스폰스 이메일 : {}", response.email());
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
-    }
-
     @PostMapping("/logout")
     public ResponseEntity<CommonResponse> logout(
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
