@@ -26,10 +26,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> {
                 log.error("이메일 '{}'에 해당하는 유저를 찾을 수 없음!", email.getValue());
-                return new UsernameNotFoundException("이메일 " + email.getValue() + "에 해당하는 유저를 찾을 수 없습니다.");
+                return new UsernameNotFoundException(
+                    "이메일 " + email.getValue() + "에 해당하는 유저를 찾을 수 없습니다.");
             });
 
         log.info("로그인:{}", user);
-        return new UserDetailsImpl(user);
+        return new UserDetailsImpl(user.getEmail().getValue(), user.getId(), user.getRole(),
+            user.getPassword());
     }
 }

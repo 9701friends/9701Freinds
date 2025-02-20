@@ -1,43 +1,49 @@
 package friends.aidelivery.common.infrastructure.security;
 
-import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
-import java.util.ArrayList;
+import friends.aidelivery.user.domain.vo.Email;
 import java.util.Collection;
 import java.util.List;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Slf4j(topic = "UserDetailsImpl")
 @Getter
 public class UserDetailsImpl implements UserDetails {
 
-    private final User user;
+    private final String email;
+    private final Long userId;
+    private final UserRoleEnum role;  // Role 정보도 저장
+    private final String password;
+    private final List<GrantedAuthority> authorities;
 
-    public UserDetailsImpl(User user) {
-        this.user = user;// 권한 부여
+    public Email getEmail() {
+        return new Email(email);
     }
 
+    public UserDetailsImpl(String email, Long userId, UserRoleEnum role, String password) {
+        this.email = email;
+        this.userId = userId;
+        this.role = role;
+        this.password = password;
+        this.authorities = AuthorityUtils.createAuthorityList(role.name());
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        UserRoleEnum role = user.getRole();
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(
-            new SimpleGrantedAuthority(role.getAuthority()));  // role.getAuthority()로 권한 추가
         return authorities;
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail().getValue();
+        return email;
     }
 }
