@@ -7,13 +7,9 @@ import friends.aidelivery.user.application.dto.request.UserLoginRequestDto;
 import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
 import friends.aidelivery.user.application.dto.response.UserResponseDto;
 import friends.aidelivery.user.domain.User;
-import friends.aidelivery.user.domain.enums.UserRoleEnum;
+import friends.aidelivery.user.domain.repository.UserRepository;
 import friends.aidelivery.user.exception.UserMismatchException;
 import friends.aidelivery.user.exception.UserNotFoundException;
-import friends.aidelivery.user.domain.repository.UserRepository;
-import friends.aidelivery.user.domain.vo.Email;
-import friends.aidelivery.user.exception.UserPasswordMismatchException;
-import friends.aidelivery.user.exception.UserUnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -40,26 +36,11 @@ public class UserService {
         return UserInfoResponseDto.of(saved);
     }
 
-    public UserResponseDto login(UserLoginRequestDto userLoginRequest) {
-
-        Email email = new Email(userLoginRequest.getEmail());
-        String encodedPassword = passwordEncoder.encode(userLoginRequest.getPassword());
-
-        User user = userRepository.findByEmail(email)
-            .orElseThrow(UserNotFoundException::new);
-
-        if (!encodedPassword.equals(user.getPassword())) {
-            throw new UserPasswordMismatchException();
-        }
-
-        return UserResponseDto.of(user);
-    }
-
     public UserResponseDto findUserInfo(Long userId, UserDetailsImpl userDetails) {
 
         User user = getUserOrElseThrow(userId);
 
-        if (!userDetails.getUser().getId().equals(user.getId())) {
+        if (!userDetails.getUserId().equals(user.getId())) {
             throw new UserMismatchException();
         }
 
@@ -72,7 +53,7 @@ public class UserService {
 
         User user = getUserOrElseThrow(userId);
 
-        if (!userDetails.getUser().getId().equals(userId)) {
+        if (!userDetails.getUserId().equals(userId)) {
             throw new UserMismatchException();
         }
         user.updateUser(userInfoRequestDto);
@@ -88,14 +69,16 @@ public class UserService {
         /**
          * 프론트에서 토큰을 지워주는거라 딱히 여기서는 뭐 안함
          */
-        return UserResponseDto.of(userDetails.getUser());
+        //return UserResponseDto.of(userDetails.getUser());
+        return null;
     }
 
     public Page<AdminUserRequestDto> findAllUser(UserDetailsImpl userDetails) {
+       /*
         if (!userDetails.getUser().getRole().equals(UserRoleEnum.MASTER)) {
             throw new UserUnauthorizedException();
         }
-
+        */
         Sort.Direction direction = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(0, 10, Sort.by(direction, "nickname"));
 
@@ -103,7 +86,7 @@ public class UserService {
 
         return userPage.map(AdminUserRequestDto::of);
     }
-    
+
     public User getUserOrElseThrow(Long userId) {
         return userRepository.findById(userId)
             .orElseThrow(UserNotFoundException::new);
