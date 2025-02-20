@@ -1,10 +1,12 @@
 package friends.aidelivery.order.application;
 
+import friends.aidelivery.order.application.dto.request.OrderCancelRequest;
 import friends.aidelivery.order.application.dto.request.OrderCreateRequest;
 import friends.aidelivery.order.application.dto.response.OrderResponse;
 import friends.aidelivery.order.domain.Order;
 import friends.aidelivery.order.domain.repository.OrderProductRepository;
 import friends.aidelivery.order.domain.repository.OrderRepository;
+import friends.aidelivery.order.exception.OrderForbiddenException;
 import friends.aidelivery.order.exception.OrderNotFoundException;
 import friends.aidelivery.product.application.ProductService;
 import friends.aidelivery.product.domain.Product;
@@ -12,7 +14,10 @@ import friends.aidelivery.store.domain.Store;
 import friends.aidelivery.store.domain.repository.StoreRepository;
 import friends.aidelivery.store.exception.StoreNotFoundException;
 import friends.aidelivery.user.domain.User;
+import friends.aidelivery.user.domain.enums.UserRoleEnum;
 import friends.aidelivery.user.domain.repository.UserRepository;
+import friends.aidelivery.user.domain.vo.Email;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,7 +38,7 @@ public class OrderService {
     private final UserRepository userRepository;
 
     @Transactional
-    public OrderResponse createOrder(final OrderCreateRequest request) {
+    public OrderResponse createOrder(final OrderCreateRequest request, Email email) {
 
         /*
         주문 생성 흐름
@@ -46,8 +51,8 @@ public class OrderService {
          */
 
         // todo 1. 유저 검증
-        final String email = "email.com";
-        final User user = null;
+        final User user = userRepository.findByEmail(email)
+            .orElseThrow(EntityNotFoundException::new);
 
         // 가게 검증
         final UUID storeId = request.storeId();
@@ -99,11 +104,48 @@ public class OrderService {
     }
 
     public Order validateOrderForReview(final UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new OrderNotFoundException(orderId));
+        Order order = findOrderOrThrow(orderId);
         order.checkOrderCompleted();
         return order;
     }
 
+    public OrderResponse getOrderById(final UUID orderId) {
+        Order order = findOrderOrThrow(orderId);
+        return OrderResponse.of(order);
+    }
 
+    @Transactional
+    public void cancelOrder(final UUID orderId, final Email email,
+        final OrderCancelRequest request) {
+        User user = userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+        Order order = findOrderOrThrow(orderId);
+        order.cancelOrder(user.getId(), request.cancelTime());
+    }
+
+    private Order findOrderOrThrow(final UUID orderId) {
+        return orderRepository.findById(orderId)
+            .orElseThrow(() -> new OrderNotFoundException(orderId));
+    }
+
+    @Transactional
+    public void acceptOrder(final UUID orderId, final Email email) {
+        // userService -> owner 권한 검증
+        User user = userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+        if (user.getRole() == UserRoleEnum.CUSTOMER) {
+            throw new OrderForbiddenException(orderId);
+        }
+        // todo storeService -> 주문한 가게주인이 맞는지 검증
+        Order order = findOrderOrThrow(orderId);
+        order.acceptOrder(user.getId());
+    }
+
+    @Transactional
+    public void rejectOrder(final UUID orderId, final Email email) {
+        User user = userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+        if (user.getRole() == UserRoleEnum.CUSTOMER) {
+            throw new OrderForbiddenException(orderId);
+        }
+        Order order = findOrderOrThrow(orderId);
+        order.rejectOrder(user.getId());
+    }
 }

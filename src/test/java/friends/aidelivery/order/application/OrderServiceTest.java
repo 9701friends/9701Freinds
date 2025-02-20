@@ -10,6 +10,7 @@ import friends.aidelivery.product.domain.ProductCategory;
 import friends.aidelivery.product.domain.repository.ProductCategoryRepository;
 import friends.aidelivery.store.domain.Store;
 import friends.aidelivery.store.domain.repository.StoreRepository;
+import friends.aidelivery.user.domain.vo.Email;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +38,7 @@ class OrderServiceTest {
     @Test
     void order_create_success() {
         // given
-        final Long userId = 1L;
+        final String email = "text1234@gmail.com";
 
         final String storeName = "테스트 가게 이름";
         final String storeAddress = "테스트 가게 주소";
@@ -74,7 +75,7 @@ class OrderServiceTest {
         final OrderCreateRequest request = new OrderCreateRequest(storeId, orderType, orderAddress,
             orderComment, orderTime, orderProductRequests);
         // when
-        final OrderResponse orderResponse = orderService.createOrder(request);
+        final OrderResponse orderResponse = orderService.createOrder(request, new Email(email));
         // then
         Assertions.assertThat(orderResponse).isNotNull();
 
