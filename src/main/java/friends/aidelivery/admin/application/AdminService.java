@@ -22,7 +22,7 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final UserService userService;
-
+    
     public Page<AdminUserRequestDto> getUserList(int page, int size, String sortBy, boolean isAsc) {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
@@ -49,7 +49,7 @@ public class AdminService {
     @Transactional
     public void deleteUser(Long userId) {
         User user = userService.getUserOrElseThrow(userId);
-        //todo 유저 숨김 처리
+        user.softDeleteUser();
     }
 
     @Transactional
