@@ -1,5 +1,6 @@
 package friends.aidelivery.store.presentation;
 
+import friends.aidelivery.auth.jwt.application.dto.UserDetailsImpl;
 import friends.aidelivery.common.application.dto.CommonResponse;
 import friends.aidelivery.common.util.ResponseVOUtils;
 import friends.aidelivery.store.application.StoreService;
@@ -8,10 +9,13 @@ import friends.aidelivery.store.application.dto.response.RegionResponseDto;
 import friends.aidelivery.store.application.dto.response.StoreCategoryResponseDto;
 import friends.aidelivery.store.application.dto.response.StoreResponseDto;
 import java.util.UUID;
+
+import friends.aidelivery.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

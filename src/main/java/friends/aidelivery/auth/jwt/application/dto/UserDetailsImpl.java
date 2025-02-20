@@ -21,6 +21,7 @@ public class UserDetailsImpl implements UserDetails {
         this.user = user;// 권한 부여
     }
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         UserRoleEnum role = user.getRole();

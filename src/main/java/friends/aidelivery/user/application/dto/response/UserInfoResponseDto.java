@@ -3,7 +3,7 @@ package friends.aidelivery.user.application.dto.response;
 import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
 
-public record UserCreateResponse(
+public record UserInfoResponseDto(
     String name,
     String email,
     String nickname,
@@ -12,8 +12,8 @@ public record UserCreateResponse(
     String address,
     Long id // 임시
 ) {
-    public static UserCreateResponse of(User user){
-        return new UserCreateResponse(
+    public static UserInfoResponseDto of(User user){
+        return new UserInfoResponseDto(
             user.getName().getValue(),
             user.getEmail().getValue(),
             user.getNickname().getValue(),

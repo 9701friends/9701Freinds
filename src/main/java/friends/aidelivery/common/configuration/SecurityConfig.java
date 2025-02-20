@@ -59,10 +59,11 @@ public class SecurityConfig {
         );
 
         http.authorizeHttpRequests(authorizeHttpRequests ->
-            authorizeHttpRequests
-                //.requestMatchers("/**").permitAll() //개발 임시 인증 토큰 허용
-                .requestMatchers("/users/login", "/users/signIn").permitAll()
-                .anyRequest().authenticated()
+                authorizeHttpRequests
+                        //.requestMatchers("/**").permitAll() //개발 임시 인증 토큰 허용
+                        .requestMatchers("/admins/**").hasAuthority("MASTER") // hasAuthority대신 hasRole을 쓰면 PREFIX로 ROLE_이 붙어버려서 계속 오류났음
+                        .requestMatchers("/users/login", "/users/signIn").permitAll()
+                        .anyRequest().authenticated()
         );
 
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
