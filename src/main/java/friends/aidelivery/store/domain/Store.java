@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -46,7 +47,7 @@ public class Store {
     private StoreNumber storeNumber;
 
     @Embedded
-    private Rating rating;
+    private Rating averageRating;
 
     public Store(String name,String address,String storeNumber){
         this.name = new Name(name);
@@ -54,13 +55,12 @@ public class Store {
         this.storeNumber = new StoreNumber(storeNumber);
         this.storeCategoryMappingList = new ArrayList<>();
         this.storeRegionMappingList = new ArrayList<>();
+        this.averageRating = new Rating(BigDecimal.ZERO, 0);
     }
 
-    /**
-     * TODO 평점 계산
-     */
-    public void CalculateRating(){
 
+    public void CalculateRating(BigDecimal newRating){
+        this.averageRating = this.averageRating.update(newRating);
     }
 
     public void addCategories(List<StoreCategory> storeCategoryList){
