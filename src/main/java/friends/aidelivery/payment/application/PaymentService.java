@@ -24,7 +24,7 @@ public class PaymentService {
     @Transactional
     //user_id는 String 으로, order_id는 유효아이디로
     //dto 활용해서 하기
-    public Payment requestPayment(String user_id, UUID order_id, Double payment, String createdBy) {
+    public Payment requestPayment(long user_id, UUID order_id, Double payment, String createdBy) {
         Payment p = new Payment(user_id, order_id, payment, "REQUESTED", LocalDateTime.now(), createdBy );
 
         // 결제 요청 저장

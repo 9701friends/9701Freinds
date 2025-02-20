@@ -30,7 +30,7 @@ public class Payment { //db에 접근
     private Double payment;
 
     @Column(name = "user_id")
-    private String userId;
+    private long userId;
 
     @JsonProperty("order_id")
     @Column(name = "orderId")
@@ -55,7 +55,7 @@ public class Payment { //db에 접근
     private String deleted_by;
 
     //결제 생성자
-    public Payment(String userId, UUID orderId, Double payment, String paymentState, LocalDateTime createdAt, String createdBy) {
+    public Payment(long userId, UUID orderId, Double payment, String paymentState, LocalDateTime createdAt, String createdBy) {
         this.userId = userId;
         this.orderId = orderId;
         this.payment = payment;
