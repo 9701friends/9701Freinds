@@ -2,14 +2,15 @@ package friends.aidelivery.user.application;
 
 import friends.aidelivery.admin.application.dto.response.AdminUserRequestDto;
 import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
+import friends.aidelivery.user.application.dto.request.UserDeleteRequestDto;
 import friends.aidelivery.user.application.dto.request.UserInfoRequestDto;
-import friends.aidelivery.user.application.dto.request.UserLoginRequestDto;
 import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
 import friends.aidelivery.user.application.dto.response.UserResponseDto;
 import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.repository.UserRepository;
 import friends.aidelivery.user.exception.UserMismatchException;
 import friends.aidelivery.user.exception.UserNotFoundException;
+import friends.aidelivery.user.exception.UserPasswordMismatchException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -40,9 +41,7 @@ public class UserService {
 
         User user = getUserOrElseThrow(userId);
 
-        if (!userDetails.getUserId().equals(user.getId())) {
-            throw new UserMismatchException();
-        }
+        userMismatch(userDetails, user.getId());
 
         return UserResponseDto.of(user);
     }
@@ -53,32 +52,30 @@ public class UserService {
 
         User user = getUserOrElseThrow(userId);
 
-        if (!userDetails.getUserId().equals(userId)) {
-            throw new UserMismatchException();
-        }
+        userMismatch(userDetails, userId);
         user.updateUser(userInfoRequestDto);
         return UserResponseDto.of(user);
     }
 
-    public UserResponseDto deleteUser(Long userId, UserLoginRequestDto requestDto) {
-        //todo 유저 숨김 처리
-        return null;
-    }
-
-    public UserResponseDto logout(UserDetailsImpl userDetails) {
-        /**
-         * 프론트에서 토큰을 지워주는거라 딱히 여기서는 뭐 안함
-         */
-        //return UserResponseDto.of(userDetails.getUser());
-        return null;
-    }
-
-    public Page<AdminUserRequestDto> findAllUser(UserDetailsImpl userDetails) {
-       /*
-        if (!userDetails.getUser().getRole().equals(UserRoleEnum.MASTER)) {
-            throw new UserUnauthorizedException();
+    @Transactional
+    public UserResponseDto deleteUser(UserDetailsImpl userDetails, Long userId,
+        UserDeleteRequestDto requestDto) {
+        User user = getUserOrElseThrow(userId);
+        userMismatch(userDetails, userId);
+        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+            throw new UserPasswordMismatchException();
         }
-        */
+        user.softDeleteUser();
+        return UserResponseDto.of(user);
+    }
+
+    public UserResponseDto logout() {
+
+        return null;
+    }
+
+    public Page<AdminUserRequestDto> findAllUser() {
+
         Sort.Direction direction = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(0, 10, Sort.by(direction, "nickname"));
 
@@ -90,5 +87,11 @@ public class UserService {
     public User getUserOrElseThrow(Long userId) {
         return userRepository.findById(userId)
             .orElseThrow(UserNotFoundException::new);
+    }
+
+    private void userMismatch(UserDetailsImpl userDetails, Long userId) {
+        if (!userDetails.getUserId().equals(userId)) {
+            throw new UserMismatchException();
+        }
     }
 }
