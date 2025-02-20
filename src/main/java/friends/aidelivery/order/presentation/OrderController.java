@@ -39,7 +39,7 @@ public class OrderController {
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @Valid @RequestBody OrderCreateRequest request) {
         OrderResponse response = orderService.createOrder(request,
-            userDetails.getUser().getEmail());
+            userDetails.getEmail());
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
             HttpStatus.CREATED);
     }
@@ -49,7 +49,7 @@ public class OrderController {
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @PathVariable UUID orderId,
         @RequestBody OrderCancelRequest request) {
-        orderService.cancelOrder(orderId, userDetails.getUser().getEmail(), request);
+        orderService.cancelOrder(orderId, userDetails.getEmail(), request);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 
@@ -57,7 +57,7 @@ public class OrderController {
     public ResponseEntity<CommonResponse> acceptOrder(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @PathVariable UUID orderId) {
-        orderService.acceptOrder(orderId, userDetails.getUser().getEmail());
+        orderService.acceptOrder(orderId, userDetails.getEmail());
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 
@@ -65,7 +65,7 @@ public class OrderController {
     public ResponseEntity<CommonResponse> rejectOrder(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @PathVariable UUID orderId) {
-        orderService.rejectOrder(orderId, userDetails.getUser().getEmail());
+        orderService.rejectOrder(orderId, userDetails.getEmail());
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 }
