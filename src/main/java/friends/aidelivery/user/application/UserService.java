@@ -1,7 +1,7 @@
 package friends.aidelivery.user.application;
 
 import friends.aidelivery.admin.application.dto.response.AdminUserRequestDto;
-import friends.aidelivery.auth.jwt.application.dto.UserDetailsImpl;
+import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
 import friends.aidelivery.user.application.dto.request.UserInfoRequestDto;
 import friends.aidelivery.user.application.dto.request.UserLoginRequestDto;
 import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
