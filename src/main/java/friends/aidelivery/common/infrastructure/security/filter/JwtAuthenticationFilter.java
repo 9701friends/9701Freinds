@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import friends.aidelivery.common.infrastructure.security.JwtTokenProvider;
 import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
 import friends.aidelivery.common.exception.JwtTokenException;
-import friends.aidelivery.user.application.dto.request.UserLoginRequest;
+import friends.aidelivery.user.application.dto.request.UserLoginRequestDto;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,8 +35,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         throws AuthenticationException {
         try {
 
-            UserLoginRequest loginRequest = new ObjectMapper().readValue(request.getInputStream(),
-                UserLoginRequest.class);
+            UserLoginRequestDto loginRequest = new ObjectMapper().readValue(request.getInputStream(),
+                UserLoginRequestDto.class);
 
             log.info(loginRequest.toString());
 

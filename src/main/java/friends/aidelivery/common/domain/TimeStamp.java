@@ -33,14 +33,4 @@ public abstract class TimeStamp {
     @Column(name = "updated_by")
     private String updatedBy;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
-    @Column(name = "deleted_by")
-    private String deletedBy;
-
-    public void markAsDeleted(String deletedBy) {
-        this.deletedAt = LocalDateTime.now();
-        this.deletedBy = deletedBy;
-    }
 }

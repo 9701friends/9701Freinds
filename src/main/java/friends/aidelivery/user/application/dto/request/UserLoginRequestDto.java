@@ -3,7 +3,7 @@ package friends.aidelivery.user.application.dto.request;
 import lombok.Getter;
 
 @Getter
-public class UserLoginRequest {
+public class UserLoginRequestDto {
 
     private String email;
     private String password;

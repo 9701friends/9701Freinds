@@ -1,4 +1,4 @@
-package friends.aidelivery.user.infrastructure.repository;
+package friends.aidelivery.user.infrastructure;
 
 import static friends.aidelivery.user.domain.QUser.user;
 
@@ -6,10 +6,12 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.repository.UserRepository;
 import friends.aidelivery.user.domain.vo.Email;
-import friends.aidelivery.user.infrastructure.repository.jpa.UserJpaRepository;
+import friends.aidelivery.user.infrastructure.jpa.UserJpaRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -45,5 +47,10 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<User> findById(Long id) {
         return jpaRepository.findById(id);
+    }
+
+    @Override
+    public Page<User> findAll(Pageable pageable) {
+        return jpaRepository.findAll(pageable);
     }
 }
