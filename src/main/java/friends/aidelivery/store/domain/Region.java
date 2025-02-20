@@ -27,8 +27,12 @@ public class Region  {
     @Embedded
     private Name name;
 
+    @Column(name ="is_deleted")
+    private boolean isDeleted;
+
     public Region (String value){
         this.name = new Name(value);
+        this.isDeleted = false;
     }
 
 }

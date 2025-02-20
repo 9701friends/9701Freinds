@@ -33,9 +33,13 @@ public class StoreRegionMapping {
     @JoinColumn(name = "region_id", nullable = false)
     private Region region;
 
+    @Column(name ="is_deleted")
+    private boolean isDeleted;
+
     public StoreRegionMapping(Store store, Region region){
         this.store = store;
         this.region = region;
+        this.isDeleted = false;
     }
 
 }

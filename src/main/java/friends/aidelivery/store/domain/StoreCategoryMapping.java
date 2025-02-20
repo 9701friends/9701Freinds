@@ -1,23 +1,17 @@
 package friends.aidelivery.store.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import java.util.UUID;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "p_store_category_mapping")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 public class StoreCategoryMapping {
 
     @Id
@@ -33,9 +27,13 @@ public class StoreCategoryMapping {
     @JoinColumn(name = "store_category_id",nullable = false)
     private StoreCategory storeCategory;
 
+    @Column(name ="is_deleted")
+    private boolean isDeleted;
+
     public StoreCategoryMapping(Store store, StoreCategory storeCategory) {
         this.store = store;
         this.storeCategory = storeCategory;
+        this.isDeleted = false;
     }
 
 }

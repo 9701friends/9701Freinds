@@ -7,34 +7,34 @@ import friends.aidelivery.store.application.dto.response.StoreResponseDto;
 import friends.aidelivery.store.domain.Region;
 import friends.aidelivery.store.domain.Store;
 import friends.aidelivery.store.domain.StoreCategory;
-import friends.aidelivery.store.domain.StoreCategoryMapping;
-import friends.aidelivery.store.domain.repository.RegionRepository;
-import friends.aidelivery.store.domain.repository.StoreCategoryMappingRepository;
-import friends.aidelivery.store.domain.repository.StoreCategoryRepository;
-import friends.aidelivery.store.domain.repository.StoreRepository;
+import friends.aidelivery.store.domain.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class StoreService {
 
+    private static final Logger log = LoggerFactory.getLogger(StoreService.class);
     private final StoreRepository storeRepository;
     private final StoreCategoryRepository storeCategoryRepository;
     private final RegionRepository regionRepository;
     private final StoreCategoryMappingRepository storeCategoryMappingRepository;
+    private final StoreRegionMappingRepository storeRegionMappingRepository;
 
 
     public StoreResponseDto createStore(StoreRequestDto requestDto) {
+        /**
+         * TODO 중복된 전화번호, 이름 등록불가 , 유저 연관관계 설정
+         */
 
         //UUID ownerId = requestDto.owner();
 
@@ -54,31 +54,18 @@ public class StoreService {
     }
 
 
+    @Transactional(readOnly = true)
     public Page<StoreResponseDto> getStoresByCategory(UUID uuid, String sortBy, int page, int size,
-        boolean isAsc) {
+                                                      boolean isAsc) {
+        Pageable pageable = PageRequest.of(page,size);
 
-        Sort.Direction direction = isAsc ? Direction.ASC : Direction.DESC;
-        Sort sort = Sort.by(direction, sortBy);
+        Page<Store> storePage = storeCategoryMappingRepository.findStoresByCategoryId(uuid, sortBy, isAsc, pageable);
 
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        List<StoreCategoryMapping> categoryMappingList = storeCategoryMappingRepository.findByStoreCategoryId(
-            uuid);
-
-        List<Store> storeList = categoryMappingList.stream()
-            .map(StoreCategoryMapping::getStore)
-            .toList();
-
-        int start = Math.min((int) pageable.getOffset(), storeList.size());
-        int end = Math.min((start + pageable.getPageSize()), storeList.size());
-        List<StoreResponseDto> pagedStoreList = storeList.subList(start, end).stream()
-            .map(StoreResponseDto::of)
-            .toList();
-
-        return new PageImpl<>(pagedStoreList, pageable, storeList.size());
+        List<StoreResponseDto> responseDtoList = storePage.stream().map(StoreResponseDto::of).toList();
+        return new PageImpl<>(responseDtoList, pageable, storePage.getTotalElements());
     }
 
-
+    @Transactional
     public StoreResponseDto updateStore(UUID storeId, StoreRequestDto requestDto) {
         Store store = storeRepository.findById(storeId).orElseThrow();
 
@@ -100,6 +87,7 @@ public class StoreService {
         return StoreResponseDto.of(updatedStore);
     }
 
+    @Transactional(readOnly = true)
     public Page<StoreResponseDto> getStore(String keyword, int page, int size, String sortBy, boolean isAsc) {
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
@@ -109,11 +97,58 @@ public class StoreService {
         return storePage.map(StoreResponseDto::of);
     }
 
+    @Transactional
+    public RegionResponseDto createRegion(String regionName) {
+        /**
+         * TODO 중복된 Region 등록 불가
+         */
+
+        Region region = new Region(regionName);
+        Region saved = regionRepository.save(region);
+
+        return RegionResponseDto.of(saved);
+    }
+
+    @Transactional
+    public StoreCategoryResponseDto createCategory(String categoryName) {
+        /**
+         * // TODO 중복된 Category 등록 불가
+         */
+        StoreCategory storeCategory = new StoreCategory(categoryName);
+        StoreCategory saved = storeCategoryRepository.save(storeCategory);
+
+        return StoreCategoryResponseDto.of(saved);
+    }
+
+    @Transactional
+    public StoreResponseDto deleteStore(UUID storeId) {
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new RuntimeException("Store Not FOUND"));
+
+        storeRepository.softDeleteStore(storeId);
+        return StoreResponseDto.of(store);
+    }
+
+    @Transactional
+    public RegionResponseDto deleteRegion(UUID regionId) {
+        Region region = regionRepository.findById(regionId).orElseThrow(() -> new RuntimeException("Region Not Found"));
+
+        regionRepository.softDeleteRegion(regionId);
+        return RegionResponseDto.of(region);
+    }
+
+    @Transactional
+    public StoreCategoryResponseDto deleteStoreCategory(UUID storeCategoryId) {
+        StoreCategory storeCategory = storeCategoryRepository.findById(storeCategoryId).orElseThrow(()->new RuntimeException("Store Category Not Found"));
+
+        storeCategoryRepository.softDeleteCategory(storeCategoryId);
+        return StoreCategoryResponseDto.of(storeCategory);
+    }
+
     private List<Region> getRegionList(List<UUID> regionIdList) {
         List<Region> regionList = new ArrayList<>();
         for (UUID index : regionIdList) {
             Region regionIndex = regionRepository.findById(index)
-                .orElseThrow(() -> new RuntimeException("Region Not Found"));
+                    .orElseThrow(() -> new RuntimeException("Region Not Found"));
             regionList.add(regionIndex);
         }
         return regionList;
@@ -123,23 +158,9 @@ public class StoreService {
         List<StoreCategory> storeCategoryList = new ArrayList<>();
         for (UUID index : storeCategoryIdList) {
             StoreCategory categoryIndex = storeCategoryRepository.findById(index)
-                .orElseThrow(() -> new RuntimeException("Category Not Found"));
+                    .orElseThrow(() -> new RuntimeException("Category Not Found"));
             storeCategoryList.add(categoryIndex);
         }
         return storeCategoryList;
-    }
-
-    public RegionResponseDto createRegion(String regionName) {
-        Region region = new Region(regionName);
-        Region saved = regionRepository.save(region);
-
-        return RegionResponseDto.of(saved);
-    }
-
-    public StoreCategoryResponseDto createCategory(String categoryName) {
-        StoreCategory storeCategory = new StoreCategory(categoryName);
-        StoreCategory saved = storeCategoryRepository.save(storeCategory);
-
-        return StoreCategoryResponseDto.of(saved);
     }
 }
