@@ -5,13 +5,17 @@ import friends.aidelivery.store.domain.vo.Address;
 import friends.aidelivery.store.domain.vo.Name;
 import friends.aidelivery.store.domain.vo.Rating;
 import friends.aidelivery.store.domain.vo.StoreNumber;
+import friends.aidelivery.user.domain.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
@@ -38,6 +42,10 @@ public class Store extends TimeStamp {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoreRegionMapping> storeRegionMappingList;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name ="user_Id")
+    private User user;
+
     @Embedded
     private Name name;
 
@@ -53,10 +61,11 @@ public class Store extends TimeStamp {
     @Column(name ="is_deleted")
     private boolean isDeleted;
 
-    public Store(String name,String address,String storeNumber){
+    public Store(String name,String address,String storeNumber,User user){
         this.name = new Name(name);
         this.address = new Address(address);
         this.storeNumber = new StoreNumber(storeNumber);
+        this.user = user;
         this.storeCategoryMappingList = new ArrayList<>();
         this.storeRegionMappingList = new ArrayList<>();
         this.averageRating = new Rating(BigDecimal.ZERO, 0);

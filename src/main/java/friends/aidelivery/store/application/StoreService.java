@@ -1,5 +1,6 @@
 package friends.aidelivery.store.application;
 
+import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
 import friends.aidelivery.store.application.dto.request.StoreRequestDto;
 import friends.aidelivery.store.application.dto.response.RegionResponseDto;
 import friends.aidelivery.store.application.dto.response.StoreCategoryResponseDto;
@@ -8,6 +9,8 @@ import friends.aidelivery.store.domain.Region;
 import friends.aidelivery.store.domain.Store;
 import friends.aidelivery.store.domain.StoreCategory;
 import friends.aidelivery.store.domain.repository.*;
+import friends.aidelivery.user.domain.User;
+import friends.aidelivery.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,15 +31,15 @@ public class StoreService {
     private final StoreCategoryRepository storeCategoryRepository;
     private final RegionRepository regionRepository;
     private final StoreCategoryMappingRepository storeCategoryMappingRepository;
-    private final StoreRegionMappingRepository storeRegionMappingRepository;
+    private final UserRepository userRepository;
 
-
-    public StoreResponseDto createStore(StoreRequestDto requestDto) {
+    public StoreResponseDto createStore(UserDetailsImpl userDetails, StoreRequestDto requestDto) {
         /**
          * TODO 중복된 전화번호, 이름 등록불가 , 유저 연관관계 설정
          */
-
-        //UUID ownerId = requestDto.owner();
+        if (!userDetails.getUserId().equals(requestDto.owner())) {
+            throw new RuntimeException("유저 정보가 일치하지 않습니다.");
+        }
 
         List<Region> regionList = getRegionList(requestDto.region());
         List<StoreCategory> storeCategoryList = getStoreCategoryList(requestDto.storeCategory());
@@ -44,8 +47,9 @@ public class StoreService {
         String name = requestDto.name();
         String address = requestDto.address();
         String number = requestDto.number();
-
-        Store store = new Store(name, address, number);
+        User user = userRepository.findById(requestDto.owner())
+            .orElseThrow(() -> new RuntimeException("User Not Found"));
+        Store store = new Store(name, address, number, user);
         store.addCategories(storeCategoryList);
         store.addRegions(regionList);
 
