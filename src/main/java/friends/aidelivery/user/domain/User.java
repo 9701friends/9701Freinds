@@ -74,12 +74,12 @@ public class User extends TimeStamp {
         this.isDeleted = false;
     }
 
-    public void updateUser(UserInfoRequestDto userInfoRequestDto) {
+    public void updateUser(UserInfoRequestDto userInfoRequestDto, PasswordEncoder passwordEncoder) {
         this.name = new Name(userInfoRequestDto.name());
         this.email = new Email(userInfoRequestDto.email());
         this.nickname = new Nickname(userInfoRequestDto.nickname());
         this.role = userInfoRequestDto.role();
-        this.password = userInfoRequestDto.password();
+        this.password = Password.encrypt(userInfoRequestDto.password(), passwordEncoder).getValue();
         this.address = new Address(userInfoRequestDto.address());
         this.phone = new Phone(userInfoRequestDto.phone());
     }

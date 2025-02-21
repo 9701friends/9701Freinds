@@ -48,7 +48,7 @@ public class UserService {
         User user = getUserOrElseThrow(userId);
 
         userMismatch(userDetails, userId);
-        user.updateUser(userInfoRequestDto);
+        user.updateUser(userInfoRequestDto, passwordEncoder);
         return UserResponseDto.of(user);
     }
 
