@@ -50,7 +50,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Page<User> findAll(Pageable pageable) {
-        return jpaRepository.findAll(pageable);
+    public Page<User> findAllByIsDeletedFalse(Pageable pageable) {
+        return jpaRepository.findAllByIsDeletedFalse(pageable);
     }
 }
