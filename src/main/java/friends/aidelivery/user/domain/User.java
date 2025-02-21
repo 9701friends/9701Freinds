@@ -1,6 +1,7 @@
 package friends.aidelivery.user.domain;
 
 import friends.aidelivery.admin.application.dto.request.AdminUserUpdateRequest;
+import friends.aidelivery.common.domain.TimeStamp;
 import friends.aidelivery.user.application.dto.request.UserInfoRequestDto;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
 import friends.aidelivery.user.domain.vo.Address;
@@ -18,7 +19,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,7 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Table(name = "p_user")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User implements Serializable {
+public class User extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
