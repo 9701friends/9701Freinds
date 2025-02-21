@@ -1,5 +1,6 @@
 package friends.aidelivery.product.domain;
 
+import friends.aidelivery.common.domain.TimeStamp;
 import friends.aidelivery.product.application.dto.request.ProductCategoryUpdateRequest;
 import friends.aidelivery.product.domain.vo.Content;
 import friends.aidelivery.product.domain.vo.Name;
@@ -16,7 +17,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_product_category")
 @Entity
-public class ProductCategory {
+public class ProductCategory extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -48,13 +48,14 @@ public class ProductCategory {
     @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 
     public ProductCategory(final Store store, final String name, final String content) {
         this.store = store;
         this.name = new Name(name);
         this.content = new Content(content);
+        this.isDeleted = false;
     }
 
     public void update(final ProductCategoryUpdateRequest newProductCategory) {
@@ -71,6 +72,6 @@ public class ProductCategory {
     }
 
     public void softDelete() {
-        this.deletedAt = LocalDateTime.now();
+        this.isDeleted = true;
     }
 }

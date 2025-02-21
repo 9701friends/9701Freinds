@@ -1,12 +1,16 @@
 package friends.aidelivery.product.application;
 
 import friends.aidelivery.product.application.dto.request.ProductCategoryCreateRequest;
+import friends.aidelivery.product.application.dto.request.ProductCategorySearchCond;
 import friends.aidelivery.product.application.dto.request.ProductCategoryUpdateRequest;
 import friends.aidelivery.product.application.dto.request.ProductCreateRequest;
+import friends.aidelivery.product.application.dto.request.ProductSearchCond;
 import friends.aidelivery.product.application.dto.request.ProductStatusUpdateRequest;
 import friends.aidelivery.product.application.dto.request.ProductUpdateRequest;
 import friends.aidelivery.product.application.dto.response.ProductCategoryResponse;
+import friends.aidelivery.product.application.dto.response.ProductCategorySearchResponse;
 import friends.aidelivery.product.application.dto.response.ProductResponse;
+import friends.aidelivery.product.application.dto.response.ProductSearchResponse;
 import friends.aidelivery.product.domain.Product;
 import friends.aidelivery.product.domain.ProductCategory;
 import friends.aidelivery.product.domain.enums.ProductStatus;
@@ -17,9 +21,14 @@ import friends.aidelivery.product.exception.ProductNotFoundException;
 import friends.aidelivery.store.domain.Store;
 import friends.aidelivery.store.domain.repository.StoreRepository;
 import friends.aidelivery.store.exception.StoreNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,11 +119,6 @@ public class ProductService {
         return ProductResponse.of(findProductById(productId));
     }
 
-    /*
-        주문 생성시 상품 유효성 검증
-        1. 상품 존재 여부 체크
-        2. 상품 상태가 SELLING 인지 체크
-     */
     public List<Product> findAllByProductIds(List<UUID> productIds) {
         return productIds.stream()
             .map(this::findProductById)
@@ -131,4 +135,39 @@ public class ProductService {
             .orElseThrow(() -> new ProductCategoryNotFoundException(productCategoryId));
     }
 
+    public ProductSearchResponse search(final ProductSearchCond cond, final int page,
+        final int size, final String sort) {
+        Pageable pageable = getPageable(page, size, sort);
+        return ProductSearchResponse.of(productRepository.search(cond, pageable));
+    }
+
+    public ProductCategorySearchResponse searchCategory(final ProductCategorySearchCond cond,
+        final int page, final int size, final String sort) {
+        Pageable pageable = getPageable(page, size, sort);
+        return ProductCategorySearchResponse.of(
+            productCategoryRepository.searchCategory(cond, pageable));
+    }
+
+    private Pageable getPageable(final int page, final int size, final String sort) {
+
+        String[] sortParams = sort.split(",");
+        List<Sort.Order> orders = new ArrayList<>();
+
+        for (String param : sortParams) {
+            String[] fieldAndDirection = param.trim().split("-");
+            if (fieldAndDirection.length != 2) {
+                throw new IllegalArgumentException(
+                    "Invalid sort parameter format. Expected 'field direction'.");
+            }
+
+            String field = fieldAndDirection[0];
+            String direction = fieldAndDirection[1].toUpperCase();
+            Direction dir = direction.equals("ASC") ? Direction.ASC : Direction.DESC;
+            orders.add(new Sort.Order(dir, field));
+        }
+
+        Sort sortObj = Sort.by(orders);
+
+        return PageRequest.of(page, size, sortObj);
+    }
 }
