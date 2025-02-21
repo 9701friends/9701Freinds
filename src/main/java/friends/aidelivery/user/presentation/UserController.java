@@ -9,6 +9,7 @@ import friends.aidelivery.user.application.dto.request.UserInfoRequestDto;
 import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
 import friends.aidelivery.user.application.dto.response.UserResponseDto;
 import friends.aidelivery.user.domain.enums.UserRoleEnum.Authority;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class UserController {
 
     @PostMapping("/signIn")
     public ResponseEntity<CommonResponse> signIn(
-        @RequestBody final UserInfoRequestDto userInfoRequestDto) {
+        @RequestBody @Valid final UserInfoRequestDto userInfoRequestDto) {
         UserInfoResponseDto response = userService.singIn(userInfoRequestDto);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
             HttpStatus.CREATED);
@@ -51,7 +52,7 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<CommonResponse> updateUser(
         @AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long userId,
-        @RequestBody UserInfoRequestDto requestDto) {
+        @RequestBody @Valid UserInfoRequestDto requestDto) {
         UserResponseDto response = userService.updateUserInfo(userDetails, userId, requestDto);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
@@ -60,7 +61,7 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public ResponseEntity<CommonResponse> deleteUser(@PathVariable Long userId,
         @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestBody UserDeleteRequestDto requestDto) {
+        @RequestBody @Valid UserDeleteRequestDto requestDto) {
         UserResponseDto response = userService.deleteUser(userDetails, userId, requestDto);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
