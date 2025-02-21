@@ -2,6 +2,7 @@ package friends.aidelivery.store.presentation;
 
 
 import friends.aidelivery.common.application.dto.CommonResponse;
+import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
 import friends.aidelivery.common.util.ResponseVOUtils;
 import friends.aidelivery.store.application.StoreService;
 import friends.aidelivery.store.application.dto.request.StoreRequestDto;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/stores")
@@ -45,8 +47,9 @@ public class StoreController {
     @Secured({UserRoleEnum.Authority.MANAGER, UserRoleEnum.Authority.MASTER, UserRoleEnum.Authority.OWNER})
     @PostMapping("")
     public ResponseEntity<CommonResponse> createStore(
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
             final @RequestBody StoreRequestDto requestDto) {
-        StoreResponseDto response = storeService.createStore(requestDto);
+        StoreResponseDto response = storeService.createStore(userDetails,requestDto);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
                 HttpStatus.CREATED);
     }
