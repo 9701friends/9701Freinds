@@ -1,5 +1,6 @@
 package friends.aidelivery.product.domain;
 
+import friends.aidelivery.common.domain.TimeStamp;
 import friends.aidelivery.product.application.dto.request.ProductUpdateRequest;
 import friends.aidelivery.product.domain.enums.ProductStatus;
 import friends.aidelivery.product.domain.vo.Content;
@@ -18,7 +19,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_product")
 @Entity
-public class Product {
+public class Product extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -52,8 +52,8 @@ public class Product {
     @Column(name = "status", nullable = false)
     private ProductStatus status;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 
     public Product(final ProductCategory productCategory, final String name, final String content,
         final Long price,
@@ -63,6 +63,7 @@ public class Product {
         this.content = new Content(content);
         this.price = new Price(price);
         this.status = status;
+        this.isDeleted = false;
     }
 
     public void update(final ProductUpdateRequest newProduct) {
@@ -83,7 +84,7 @@ public class Product {
 
     public void softDelete() {
         this.status = ProductStatus.HOLD;
-        this.deletedAt = LocalDateTime.now();
+        this.isDeleted = true;
         this.productCategory.removeProduct(this);
     }
 

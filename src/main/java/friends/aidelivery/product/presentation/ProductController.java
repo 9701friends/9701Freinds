@@ -4,12 +4,16 @@ import friends.aidelivery.common.application.dto.CommonResponse;
 import friends.aidelivery.common.util.ResponseVOUtils;
 import friends.aidelivery.product.application.ProductService;
 import friends.aidelivery.product.application.dto.request.ProductCategoryCreateRequest;
+import friends.aidelivery.product.application.dto.request.ProductCategorySearchCond;
 import friends.aidelivery.product.application.dto.request.ProductCategoryUpdateRequest;
 import friends.aidelivery.product.application.dto.request.ProductCreateRequest;
+import friends.aidelivery.product.application.dto.request.ProductSearchCond;
 import friends.aidelivery.product.application.dto.request.ProductStatusUpdateRequest;
 import friends.aidelivery.product.application.dto.request.ProductUpdateRequest;
 import friends.aidelivery.product.application.dto.response.ProductCategoryResponse;
+import friends.aidelivery.product.application.dto.response.ProductCategorySearchResponse;
 import friends.aidelivery.product.application.dto.response.ProductResponse;
+import friends.aidelivery.product.application.dto.response.ProductSearchResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -28,53 +32,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/products")
+@RequestMapping("/products")
 @RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
 
-    @PostMapping("")
-    public ResponseEntity<CommonResponse> createProduct(
-        @Valid @RequestBody final ProductCreateRequest request) {
-        ProductResponse response = productService.createProduct(request);
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
-            HttpStatus.CREATED);
+    @GetMapping("/{productId}")
+    public ResponseEntity<CommonResponse> getProduct(@PathVariable final UUID productId) {
+        ProductResponse response = productService.getProductById(productId);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
-    @PostMapping("/categories")
-    public ResponseEntity<CommonResponse> createProductCategory(
-        @Valid @RequestBody final ProductCategoryCreateRequest request) {
-        ProductCategoryResponse response = productService.createProductCategory(request);
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
-            HttpStatus.CREATED);
-    }
-
-    @PutMapping("/{productId}")
-    public ResponseEntity<CommonResponse> updateProduct(
-        @PathVariable final UUID productId,
-        @Valid @RequestBody final ProductUpdateRequest request) {
-        ProductResponse response = productService.updateProduct(productId, request);
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
-            HttpStatus.OK);
-    }
-
-    @PutMapping("/categories/{productCategoryId}")
-    public ResponseEntity<CommonResponse> updateProductCategory(
-        @PathVariable final UUID productCategoryId,
-        @Valid @RequestBody final ProductCategoryUpdateRequest request) {
-        ProductCategoryResponse response = productService.updateProductCategory(productCategoryId,
-            request);
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
-            HttpStatus.OK);
-    }
-
-    @PatchMapping("/{productId}/category")
-    public ResponseEntity<CommonResponse> updateCategoryOfProduct(
-        @PathVariable final UUID productId,
-        @RequestParam final UUID productCategoryId) {
-        ProductResponse response = productService.updateCategoryOfProduct(productId,
-            productCategoryId);
+    @GetMapping("/search")
+    public ResponseEntity<CommonResponse> getProducts(
+        @RequestBody final ProductSearchCond cond,
+        @RequestParam final int page,
+        @RequestParam final int size,
+        @RequestParam(required = false) final String sort) {
+        ProductSearchResponse response = productService.search(cond, page, size,
+            sort);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
@@ -92,6 +69,62 @@ public class ProductController {
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 
+    @PostMapping("")
+    public ResponseEntity<CommonResponse> createProduct(
+        @Valid @RequestBody final ProductCreateRequest request) {
+        ProductResponse response = productService.createProduct(request);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
+            HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{productId}")
+    public ResponseEntity<CommonResponse> updateProduct(
+        @PathVariable final UUID productId,
+        @Valid @RequestBody final ProductUpdateRequest request) {
+        ProductResponse response = productService.updateProduct(productId, request);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
+            HttpStatus.OK);
+    }
+
+    @PatchMapping("/{productId}/category")
+    public ResponseEntity<CommonResponse> updateCategoryOfProduct(
+        @PathVariable final UUID productId,
+        @RequestParam final UUID productCategoryId) {
+        ProductResponse response = productService.updateCategoryOfProduct(productId,
+            productCategoryId);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/categories/search")
+    public ResponseEntity<CommonResponse> getProductCategories(
+        @RequestBody final ProductCategorySearchCond cond,
+        @RequestParam final int page,
+        @RequestParam final int size,
+        @RequestParam(required = false) final String sort) {
+        ProductCategorySearchResponse response = productService.searchCategory(cond, page, size,
+            sort);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
+    }
+
+    @PostMapping("/categories")
+    public ResponseEntity<CommonResponse> createProductCategory(
+        @Valid @RequestBody final ProductCategoryCreateRequest request) {
+        ProductCategoryResponse response = productService.createProductCategory(request);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
+            HttpStatus.CREATED);
+    }
+
+    @PutMapping("/categories/{productCategoryId}")
+    public ResponseEntity<CommonResponse> updateProductCategory(
+        @PathVariable final UUID productCategoryId,
+        @Valid @RequestBody final ProductCategoryUpdateRequest request) {
+        ProductCategoryResponse response = productService.updateProductCategory(productCategoryId,
+            request);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response),
+            HttpStatus.OK);
+    }
+
     @DeleteMapping("/categories")
     public ResponseEntity<CommonResponse> softDeleteProductCategories(
         @RequestBody final List<UUID> productCategoryIds) {
@@ -99,9 +132,5 @@ public class ProductController {
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 
-    @GetMapping("/{productId}")
-    public ResponseEntity<CommonResponse> getProduct(@PathVariable final UUID productId) {
-        ProductResponse response = productService.getProductById(productId);
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
-    }
+
 }
