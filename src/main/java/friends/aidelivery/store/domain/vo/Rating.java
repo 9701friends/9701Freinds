@@ -2,7 +2,9 @@ package friends.aidelivery.store.domain.vo;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+
 import java.math.BigDecimal;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,10 +21,13 @@ public class Rating {
     @Column(name = "rating")
     private BigDecimal value;
 
-    @Column(name ="rating_count")
+    @Column(name = "rating_count")
     private Integer quantity = 0;
 
     private void validate(BigDecimal value, Integer quantity) {
+        if (quantity < 1) {
+            return;
+        }
         if (value == null) {
             throw new NullPointerException("평점은 필수 입력값입니다.");
         }
@@ -55,7 +60,7 @@ public class Rating {
     public Rating update(BigDecimal newRating) {
         // 기존 평점 총합 + 새 평점
         BigDecimal totalRatingSum = this.value.multiply(BigDecimal.valueOf(this.quantity))
-            .add(newRating);
+                .add(newRating);
 
         int newQuantity = this.quantity + 1;
         BigDecimal newAverage = totalRatingSum.divide(BigDecimal.valueOf(newQuantity), 2, BigDecimal.ROUND_HALF_UP);

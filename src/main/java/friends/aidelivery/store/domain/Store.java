@@ -1,5 +1,6 @@
 package friends.aidelivery.store.domain;
 
+import friends.aidelivery.common.domain.TimeStamp;
 import friends.aidelivery.store.domain.vo.Address;
 import friends.aidelivery.store.domain.vo.Name;
 import friends.aidelivery.store.domain.vo.Rating;
@@ -24,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "p_store")
 @NoArgsConstructor
-public class Store {
+public class Store extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -49,6 +50,9 @@ public class Store {
     @Embedded
     private Rating averageRating;
 
+    @Column(name ="is_deleted")
+    private boolean isDeleted;
+
     public Store(String name,String address,String storeNumber){
         this.name = new Name(name);
         this.address = new Address(address);
@@ -56,6 +60,7 @@ public class Store {
         this.storeCategoryMappingList = new ArrayList<>();
         this.storeRegionMappingList = new ArrayList<>();
         this.averageRating = new Rating(BigDecimal.ZERO, 0);
+        this.isDeleted = false;
     }
 
 
@@ -76,21 +81,6 @@ public class Store {
             this.storeRegionMappingList.add(mapping);
         }
     }
-
-    public void removeCategory(StoreCategory storeCategory){
-        storeCategoryMappingList.removeIf(
-            mapping -> mapping.getStoreCategory().equals(storeCategory));
-
-        storeCategory.getStoreCategoryMappingList()
-            .removeIf(mapping -> mapping.getStore().equals(this));
-    }
-
-    public void removeRegion(Region region){
-        storeRegionMappingList.removeIf(mapping -> mapping.getRegion().equals(region));
-
-        region.getStoreRegionMappingList().removeIf(mapping -> mapping.getStore().equals(this));
-    }
-
     public void updateName(String newName) {
         this.name.update(newName);
     }

@@ -9,4 +9,6 @@ public interface RegionRepository {
     Region save(Region region);
 
     Optional<Region> findById(UUID regionId);
+
+    void softDeleteRegion(UUID regionId);
 }
