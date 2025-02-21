@@ -1,0 +1,209 @@
+
+
+### 회원 가입 (Sign In) MASTER
+POST http://localhost:8080/users/signIn
+Content-Type: application/json
+
+{
+  "name": "홍길동",
+  "email": "hong@example.com",
+  "nickname": "gildong",
+  "password": "1234",
+  "role": "MASTER",
+  "phone": "01012345678",
+  "address": "서울특별시 강남구"
+}
+
+### 회원 가입 (Sign In) CUSTOMER
+POST http://localhost:8080/users/signIn
+Content-Type: application/json
+
+{
+  "name": "고객님",
+  "email": "go@example.com",
+  "nickname": "goGaek",
+  "password": "1234",
+  "role": "CUSTOMER",
+  "phone": "01012123434",
+  "address": "서울특별시 강남구"
+}
+
+### 회원 가입 (Sign In) OWNER
+POST http://localhost:8080/users/signIn
+Content-Type: application/json
+
+{
+  "name": "호날두",
+  "email": "christiano@ronaldo.com",
+  "nickname": "siuuuuu",
+  "password": "1234",
+  "role": "OWNER",
+  "phone": "01018785270",
+  "address": "포르투갈 마데이라"
+}
+
+### 회원 가입 (Sign In) MANAGER
+POST http://localhost:8080/users/signIn
+Content-Type: application/json
+
+{
+  "name": "음바페",
+  "email": "french@paris.com",
+  "nickname": "ninja",
+  "password": "1234",
+  "role": "CUSTOMER",
+  "phone": "01013134646",
+  "address": "스페인 마드리드"
+}
+
+### 회원 가입 (Sign In) CUSOTMER
+POST http://localhost:8080/users/signIn
+Content-Type: application/json
+
+{
+  "name": "홀란드",
+  "email": "haaland@mancity.com",
+  "nickname": "humbleGuy",
+  "password": "1234",
+  "role": "CUSTOMER",
+  "phone": "01078789898",
+  "address": "노르웨이 요크셔"
+}
+
+### 회원 가입 (Sign In) CUSOTMER
+POST http://localhost:8080/users/signIn
+Content-Type: application/json
+
+{
+  "name": "제라드",
+  "email": "wegoNorwich@liverpool.com",
+  "nickname": "ihateDembaBa",
+  "password": "1234",
+  "role": "CUSTOMER",
+  "phone": "01088888888",
+  "address": "잉글랜드 리버풀"
+}
+
+### 로그인 MASTER
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "hong@example.com",
+  "password" : "1234"
+}
+> {%
+var cookieHeader = response.headers.valueOf("Set-Cookie");
+// 1. "Authorization=" 제거
+var authValue = cookieHeader.split("=")[1];
+
+// 2. "; Path=/" 이후 문자열 제거
+authValue = authValue.split(";")[0];
+
+// 3. URL 디코딩 (Bearer%20 → Bearer )
+authValue = decodeURIComponent(authValue);
+client.log("정리된 토큰 : " + authValue);
+  client.global.set("master_cookie", authValue);
+ %}
+
+### 로그인 MANAGER
+POST http://localhost:8080/users/login
+Content-Type: application/json
+Cookies: ignore
+
+{
+  "email" : "french@paris.com",
+  "password" : "1234"
+}
+> {%
+  var cookieHeader = response.headers.valueOf("Set-Cookie");
+  // 1. "Authorization=" 제거
+  var authValue = cookieHeader.split("=")[1];
+
+  // 2. "; Path=/" 이후 문자열 제거
+  authValue = authValue.split(";")[0];
+
+  // 3. URL 디코딩 (Bearer%20 → Bearer )
+  authValue = decodeURIComponent(authValue);
+  client.log("정리된 토큰 : " + authValue);
+  client.global.set("manager_cookie", authValue);
+%}
+
+
+### 로그인 OWNER
+POST http://localhost:8080/users/login
+Content-Type: application/json
+Cookies: ignore
+
+{
+  "email" : "christiano@ronaldo.com",
+  "password" : "1234"
+}
+> {%
+  var cookieHeader = response.headers.valueOf("Set-Cookie");
+  // 1. "Authorization=" 제거
+  var authValue = cookieHeader.split("=")[1];
+
+  // 2. "; Path=/" 이후 문자열 제거
+  authValue = authValue.split(";")[0];
+
+  // 3. URL 디코딩 (Bearer%20 → Bearer )
+  authValue = decodeURIComponent(authValue);
+  client.log("정리된 토큰 : " + authValue);
+  client.global.set("owner_cookie", authValue);
+%}
+
+### 로그인 CUSTOMER
+POST http://localhost:8080/users/login
+Content-Type: application/json
+Cookies: ignore
+
+{
+  "email" : "go@example.com",
+  "password" : "1234"
+}
+> {%
+  var cookieHeader = response.headers.valueOf("Set-Cookie");
+  // 1. "Authorization=" 제거
+  var authValue = cookieHeader.split("=")[1];
+
+  // 2. "; Path=/" 이후 문자열 제거
+  authValue = authValue.split(";")[0];
+
+  // 3. URL 디코딩 (Bearer%20 → Bearer )
+  authValue = decodeURIComponent(authValue);
+  client.log("정리된 토큰 : " + authValue);
+  client.global.set("customer_cookie", authValue);
+%}
+
+### 여기까지 더미 회원 데이터
+
+
+### 사용자 정보 수정
+PUT http://localhost:8080/users/1
+Content-Type: application/json
+Authorization: {{master_cookie}}
+
+{
+  "name": "제라드변신",
+  "email": "steven@thefootball.com",
+  "nickname": "HeartOfLiverpool",
+  "password": "1234",
+  "role": "OWNER",
+  "phone": "01079794242",
+  "address": "여기 내 마음속"
+}
+
+### 사용자 삭제
+DELETE http://localhost:8080/users/1
+Content-Type: application/json
+Authorization: {{master_cookie}}
+
+{
+  "password": "1234"
+}
+
+### 특정 사용자 조회 (관리자 권한 필요)
+GET http://localhost:8080/users/1
+Authorization: {{master_cookie}}
+
