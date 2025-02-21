@@ -7,11 +7,15 @@ import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
 import friends.aidelivery.user.application.dto.response.UserResponseDto;
 import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.repository.UserRepository;
+import friends.aidelivery.user.exception.UserDuplicateEmailException;
+import friends.aidelivery.user.exception.UserDuplicatePhoneException;
 import friends.aidelivery.user.exception.UserMismatchException;
 import friends.aidelivery.user.exception.UserNotFoundException;
 import friends.aidelivery.user.exception.UserPasswordMismatchException;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,9 +31,14 @@ public class UserService {
 
     @Transactional
     public UserInfoResponseDto singIn(UserInfoRequestDto userInfoRequestDto) {
-        User user = User.createUser(userInfoRequestDto, passwordEncoder);
-        User saved = userRepository.save(user);
-        return UserInfoResponseDto.of(saved);
+        try {
+            User user = User.createUser(userInfoRequestDto, passwordEncoder);
+            User saved = userRepository.save(user);
+            return UserInfoResponseDto.of(saved);
+        } catch (DataIntegrityViolationException e) {
+            handleDuplicateKeyException(e);
+        }
+        return null;
     }
 
     public UserResponseDto findUserInfo(Long userId, UserDetailsImpl userDetails) {
@@ -48,7 +57,7 @@ public class UserService {
         User user = getUserOrElseThrow(userId);
 
         userMismatch(userDetails, userId);
-        user.updateUser(userInfoRequestDto);
+        user.updateUser(userInfoRequestDto, passwordEncoder);
         return UserResponseDto.of(user);
     }
 
@@ -77,6 +86,15 @@ public class UserService {
     private void userMismatch(UserDetailsImpl userDetails, Long userId) {
         if (!userDetails.getUserId().equals(userId)) {
             throw new UserMismatchException();
+        }
+    }
+
+    private void handleDuplicateKeyException(DataIntegrityViolationException e) {
+        String message = Objects.requireNonNull(e.getRootCause()).getMessage(); // DB 에러 메시지 추출
+        if (message.contains("email")) {
+            throw new UserDuplicateEmailException();
+        } else if (message.contains("phone")) {
+            throw new UserDuplicatePhoneException();
         }
     }
 }
