@@ -4,10 +4,13 @@ import friends.aidelivery.admin.application.dto.request.AdminUserStatusRequestDt
 import friends.aidelivery.admin.application.dto.request.AdminUserUpdateRequest;
 import friends.aidelivery.admin.application.dto.response.AdminUserRequestDto;
 import friends.aidelivery.admin.application.dto.response.AdminUserUpdateResponse;
+import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
 import friends.aidelivery.user.application.UserService;
 import friends.aidelivery.user.application.dto.response.UserResponseDto;
 import friends.aidelivery.user.domain.User;
+import friends.aidelivery.user.domain.enums.UserRoleEnum;
 import friends.aidelivery.user.domain.repository.UserRepository;
+import friends.aidelivery.user.exception.UserUnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,13 +25,13 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final UserService userService;
-    
+
     public Page<AdminUserRequestDto> getUserList(int page, int size, String sortBy, boolean isAsc) {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
-        Page<User> userPage = userRepository.findAll(pageable);
+        Page<User> userPage = userRepository.findAllByIsDeletedFalse(pageable);
 
         return userPage.map(AdminUserRequestDto::of);
     }
@@ -53,8 +56,14 @@ public class AdminService {
     }
 
     @Transactional
-    public AdminUserUpdateResponse updateUserStatus(Long userId,
+    public AdminUserUpdateResponse updateUserStatus(UserDetailsImpl userDetails, Long userId,
         AdminUserStatusRequestDto requestDto) {
+
+        // MANAGER 권한은 MASTER로 변경 불가
+        if (userDetails.getRole().equals(UserRoleEnum.MANAGER) && requestDto.role()
+            .equals(UserRoleEnum.MASTER)) {
+            throw new UserUnauthorizedException();
+        }
 
         User user = userService.getUserOrElseThrow(userId);
 

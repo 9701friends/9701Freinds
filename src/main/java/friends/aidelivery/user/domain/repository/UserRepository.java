@@ -14,6 +14,6 @@ public interface UserRepository {
     Optional<User> findByEmail(Email email);
 
     Optional<User> findById(Long id);
-
-    Page<User> findAll(Pageable pageable);
+    
+    Page<User> findAllByIsDeletedFalse(Pageable pageable);
 }

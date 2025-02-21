@@ -6,16 +6,27 @@ import friends.aidelivery.admin.application.dto.request.AdminUserUpdateRequest;
 import friends.aidelivery.admin.application.dto.response.AdminUserRequestDto;
 import friends.aidelivery.admin.application.dto.response.AdminUserUpdateResponse;
 import friends.aidelivery.common.application.dto.CommonResponse;
+import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
 import friends.aidelivery.common.util.ResponseVOUtils;
 import friends.aidelivery.user.application.dto.response.UserResponseDto;
 import friends.aidelivery.user.domain.enums.UserRoleEnum.Authority;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/admins")
 @RequiredArgsConstructor
@@ -61,20 +72,12 @@ public class AdminController {
     }
 
     @Secured({Authority.MANAGER, Authority.MASTER})
-    @PutMapping("/{userId}/status")
+    @PutMapping("/status/{userId}")
     public ResponseEntity<CommonResponse> updateUserStatus(@PathVariable Long userId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestBody AdminUserStatusRequestDto requestDto) {
-        AdminUserUpdateResponse response = adminService.updateUserStatus(userId, requestDto);
-
+        AdminUserUpdateResponse response = adminService.updateUserStatus(userDetails, userId,
+            requestDto);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
-
-    /*
-    @Secured({"MANAGER", "MASTER"})
-    @PostMapping("/role")
-    public ResponseEntity<CommonResponse> updateUserRole(
-        @RequestBody AdminUserRoleEnumUpdateRequestDto requestDto) {
-
-    }
-     */
 }

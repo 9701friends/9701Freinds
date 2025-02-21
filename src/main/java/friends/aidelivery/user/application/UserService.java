@@ -1,6 +1,5 @@
 package friends.aidelivery.user.application;
 
-import friends.aidelivery.admin.application.dto.response.AdminUserRequestDto;
 import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
 import friends.aidelivery.user.application.dto.request.UserDeleteRequestDto;
 import friends.aidelivery.user.application.dto.request.UserInfoRequestDto;
@@ -13,10 +12,6 @@ import friends.aidelivery.user.exception.UserNotFoundException;
 import friends.aidelivery.user.exception.UserPasswordMismatchException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,16 +67,6 @@ public class UserService {
     public UserResponseDto logout() {
 
         return null;
-    }
-
-    public Page<AdminUserRequestDto> findAllUser() {
-
-        Sort.Direction direction = Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(0, 10, Sort.by(direction, "nickname"));
-
-        Page<User> userPage = userRepository.findAll(pageable);
-
-        return userPage.map(AdminUserRequestDto::of);
     }
 
     public User getUserOrElseThrow(Long userId) {
