@@ -20,8 +20,8 @@ public class StoreFixtures {
     public static final String THIRD_STORE_NUMBER = "010-3333-3333";
 
     // ENTITY
-    public static Store STORE_1 = new Store(FIRST_NAME, FIRST_ADDRESS, FIRST_STORE_NUMBER);
-    public static Store STORE_2 = new Store(SECOND_NAME, SECOND_ADDRESS, SECOND_STORE_NUMBER);
-    public static Store STORE_3 = new Store(THIRD_NAME, THIRD_ADDRESS, THIRD_STORE_NUMBER);
+    public static Store STORE_1 = new Store(FIRST_NAME, FIRST_ADDRESS, FIRST_STORE_NUMBER, null);
+//    public static Store STORE_2 = new Store(SECOND_NAME, SECOND_ADDRESS, SECOND_STORE_NUMBER);
+//    public static Store STORE_3 = new Store(THIRD_NAME, THIRD_ADDRESS, THIRD_STORE_NUMBER);
 
 }
