@@ -26,12 +26,12 @@ public class OrderHistoryController {
 
     private final OrderHistoryService orderHistoryService;
 
-    @GetMapping("/{orderId}")
+    @GetMapping("/{orderHistoryId}")
     public ResponseEntity<CommonResponse> getOrderHistoryForCustomer(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @PathVariable UUID orderId) {
+        @PathVariable UUID orderHistoryId) {
         OrderHistoryResponse response = orderHistoryService.getOrderHistoryForCustomer(userDetails,
-            orderId);
+            orderHistoryId);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 

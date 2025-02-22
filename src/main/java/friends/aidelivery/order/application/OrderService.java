@@ -85,14 +85,8 @@ public class OrderService {
         return price * quantity;
     }
 
-    public Order validateOrderForReview(final UUID orderId) {
-        final Order order = findOrderOrThrow(orderId);
-        order.checkOrderCompleted();
-        return order;
-    }
-
     public OrderResponse getOrderById(final UUID orderId) {
-        final Order order = findOrderOrThrow(orderId);
+        final Order order = getOrderOrThrow(orderId);
         return OrderResponse.of(order);
     }
 
@@ -101,11 +95,11 @@ public class OrderService {
         final OrderCancelRequest request) {
         final Long userId = userDetails.getUserId();
         final User user = userService.getUserOrElseThrow(userId);
-        final Order order = findOrderOrThrow(orderId);
+        final Order order = getOrderOrThrow(orderId);
         order.cancelOrder(user.getId(), request.cancelTime());
     }
 
-    public Order findOrderOrThrow(final UUID orderId) {
+    public Order getOrderOrThrow(final UUID orderId) {
         return orderRepository.findById(orderId)
             .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
@@ -114,7 +108,7 @@ public class OrderService {
     public void updateOrderStatus(final UUID orderId, final UserDetailsImpl userDetails, final
     OrderStatus status) {
         final User user = userService.getUserOrElseThrow(userDetails.getUserId());
-        final Order order = findOrderOrThrow(orderId);
+        final Order order = getOrderOrThrow(orderId);
         order.updateOrderStatus(user.getId(), status);
     }
 
@@ -122,7 +116,7 @@ public class OrderService {
     public void completeOrder(final UUID orderId, final UserDetailsImpl userDetails) {
         final Long userId = userDetails.getUserId();
         final User user = userService.getUserOrElseThrow(userId);
-        final Order order = findOrderOrThrow(orderId);
+        final Order order = getOrderOrThrow(orderId);
         order.completeOrder(user.getId());
         orderHistoryService.saveOrderHistory(order);
     }

@@ -34,8 +34,8 @@ public class OrderHistoryRepositoryImpl implements OrderHistoryRepository {
     }
 
     @Override
-    public Optional<OrderHistory> findByOrderId(UUID orderId) {
-        return jpaRepository.findByOrderId(orderId);
+    public Optional<OrderHistory> findById(UUID orderHistoryId) {
+        return jpaRepository.findById(orderHistoryId);
     }
 
     @Override
