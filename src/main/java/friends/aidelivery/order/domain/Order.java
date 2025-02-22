@@ -6,7 +6,6 @@ import friends.aidelivery.order.domain.enums.OrderStatus;
 import friends.aidelivery.order.domain.enums.OrderType;
 import friends.aidelivery.order.exception.OrderCancelException;
 import friends.aidelivery.order.exception.OrderForbiddenException;
-import friends.aidelivery.order.exception.OrderNotCompletedException;
 import friends.aidelivery.product.domain.Product;
 import friends.aidelivery.store.domain.Store;
 import friends.aidelivery.user.domain.User;
@@ -110,15 +109,6 @@ public class Order extends TimeStamp {
             .map(entry ->
                 OrderProduct.create(this, entry.getKey(), entry.getValue()))
             .toList();
-    }
-
-    public void checkOrderCompleted() {
-        if (this.orderStatus != OrderStatus.COMPLETED) {
-            throw new OrderNotCompletedException(this.id);
-        }
-        if (this.completionTime == null) {
-            throw new OrderNotCompletedException(this.id);
-        }
     }
 
     public void cancelOrder(final Long userId, final LocalDateTime cancelTime) {

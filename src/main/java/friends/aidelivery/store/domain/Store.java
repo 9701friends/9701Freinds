@@ -43,7 +43,7 @@ public class Store extends TimeStamp {
     private List<StoreRegionMapping> storeRegionMappingList;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name ="user_Id")
+    @JoinColumn(name = "user_Id")
     private User user;
 
     @Embedded
@@ -58,10 +58,10 @@ public class Store extends TimeStamp {
     @Embedded
     private Rating averageRating;
 
-    @Column(name ="is_deleted")
+    @Column(name = "is_deleted")
     private boolean isDeleted;
 
-    public Store(String name,String address,String storeNumber,User user){
+    public Store(String name, String address, String storeNumber, User user) {
         this.name = new Name(name);
         this.address = new Address(address);
         this.storeNumber = new StoreNumber(storeNumber);
@@ -72,24 +72,24 @@ public class Store extends TimeStamp {
         this.isDeleted = false;
     }
 
-
-    public void CalculateRating(BigDecimal newRating){
-        this.averageRating = this.averageRating.update(newRating);
+    public void CalculateRating(int quantityChange, BigDecimal oldRating, BigDecimal newRating) {
+        this.averageRating = this.averageRating.update(quantityChange, oldRating, newRating);
     }
 
-    public void addCategories(List<StoreCategory> storeCategoryList){
+    public void addCategories(List<StoreCategory> storeCategoryList) {
         for (StoreCategory index : storeCategoryList) {
-            StoreCategoryMapping mapping = new StoreCategoryMapping(this,index);
+            StoreCategoryMapping mapping = new StoreCategoryMapping(this, index);
             this.storeCategoryMappingList.add(mapping);
         }
     }
 
     public void addRegions(List<Region> regionList) {
         for (Region index : regionList) {
-            StoreRegionMapping mapping = new StoreRegionMapping(this,index);
+            StoreRegionMapping mapping = new StoreRegionMapping(this, index);
             this.storeRegionMappingList.add(mapping);
         }
     }
+
     public void updateName(String newName) {
         this.name.update(newName);
     }

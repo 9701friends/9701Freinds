@@ -10,7 +10,7 @@ public interface OrderHistoryRepository {
 
     OrderHistory save(OrderHistory orderHistory);
 
-    Optional<OrderHistory> findByOrderId(UUID orderId);
+    Optional<OrderHistory> findById(UUID orderHistoryId);
 
     Page<OrderHistory> search(Long userId, Pageable pageable, String search);
 

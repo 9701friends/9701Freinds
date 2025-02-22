@@ -8,19 +8,27 @@ import friends.aidelivery.store.application.dto.response.StoreResponseDto;
 import friends.aidelivery.store.domain.Region;
 import friends.aidelivery.store.domain.Store;
 import friends.aidelivery.store.domain.StoreCategory;
-import friends.aidelivery.store.domain.repository.*;
+import friends.aidelivery.store.domain.repository.RegionRepository;
+import friends.aidelivery.store.domain.repository.StoreCategoryMappingRepository;
+import friends.aidelivery.store.domain.repository.StoreCategoryRepository;
+import friends.aidelivery.store.domain.repository.StoreRepository;
+import friends.aidelivery.store.exception.StoreNotFoundException;
 import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.*;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -60,12 +68,14 @@ public class StoreService {
 
     @Transactional(readOnly = true)
     public Page<StoreResponseDto> getStoresByCategory(UUID uuid, String sortBy, int page, int size,
-                                                      boolean isAsc) {
-        Pageable pageable = PageRequest.of(page,size);
+        boolean isAsc) {
+        Pageable pageable = PageRequest.of(page, size);
 
-        Page<Store> storePage = storeCategoryMappingRepository.findStoresByCategoryId(uuid, sortBy, isAsc, pageable);
+        Page<Store> storePage = storeCategoryMappingRepository.findStoresByCategoryId(uuid, sortBy,
+            isAsc, pageable);
 
-        List<StoreResponseDto> responseDtoList = storePage.stream().map(StoreResponseDto::of).toList();
+        List<StoreResponseDto> responseDtoList = storePage.stream().map(StoreResponseDto::of)
+            .toList();
         return new PageImpl<>(responseDtoList, pageable, storePage.getTotalElements());
     }
 
@@ -92,7 +102,8 @@ public class StoreService {
     }
 
     @Transactional(readOnly = true)
-    public Page<StoreResponseDto> getStore(String keyword, int page, int size, String sortBy, boolean isAsc) {
+    public Page<StoreResponseDto> getStore(String keyword, int page, int size, String sortBy,
+        boolean isAsc) {
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
@@ -126,7 +137,8 @@ public class StoreService {
 
     @Transactional
     public StoreResponseDto deleteStore(UUID storeId) {
-        Store store = storeRepository.findById(storeId).orElseThrow(() -> new RuntimeException("Store Not FOUND"));
+        Store store = storeRepository.findById(storeId)
+            .orElseThrow(() -> new RuntimeException("Store Not FOUND"));
 
         storeRepository.softDeleteStore(storeId);
         return StoreResponseDto.of(store);
@@ -134,7 +146,8 @@ public class StoreService {
 
     @Transactional
     public RegionResponseDto deleteRegion(UUID regionId) {
-        Region region = regionRepository.findById(regionId).orElseThrow(() -> new RuntimeException("Region Not Found"));
+        Region region = regionRepository.findById(regionId)
+            .orElseThrow(() -> new RuntimeException("Region Not Found"));
 
         regionRepository.softDeleteRegion(regionId);
         return RegionResponseDto.of(region);
@@ -142,7 +155,8 @@ public class StoreService {
 
     @Transactional
     public StoreCategoryResponseDto deleteStoreCategory(UUID storeCategoryId) {
-        StoreCategory storeCategory = storeCategoryRepository.findById(storeCategoryId).orElseThrow(()->new RuntimeException("Store Category Not Found"));
+        StoreCategory storeCategory = storeCategoryRepository.findById(storeCategoryId)
+            .orElseThrow(() -> new RuntimeException("Store Category Not Found"));
 
         storeCategoryRepository.softDeleteCategory(storeCategoryId);
         return StoreCategoryResponseDto.of(storeCategory);
@@ -152,7 +166,7 @@ public class StoreService {
         List<Region> regionList = new ArrayList<>();
         for (UUID index : regionIdList) {
             Region regionIndex = regionRepository.findById(index)
-                    .orElseThrow(() -> new RuntimeException("Region Not Found"));
+                .orElseThrow(() -> new RuntimeException("Region Not Found"));
             regionList.add(regionIndex);
         }
         return regionList;
@@ -162,9 +176,22 @@ public class StoreService {
         List<StoreCategory> storeCategoryList = new ArrayList<>();
         for (UUID index : storeCategoryIdList) {
             StoreCategory categoryIndex = storeCategoryRepository.findById(index)
-                    .orElseThrow(() -> new RuntimeException("Category Not Found"));
+                .orElseThrow(() -> new RuntimeException("Category Not Found"));
             storeCategoryList.add(categoryIndex);
         }
         return storeCategoryList;
+    }
+
+    @Transactional
+    public void calculateRating(final UUID storeId, int quantityChange, BigDecimal oldRating,
+        BigDecimal newRating) {
+        final Store store = getStoreOrElseThrow(storeId);
+        store.CalculateRating(quantityChange, oldRating, newRating);
+    }
+
+    @Transactional(readOnly = true)
+    public Store getStoreOrElseThrow(UUID storeId) {
+        return storeRepository.findById(storeId)
+            .orElseThrow(() -> new StoreNotFoundException(storeId));
     }
 }

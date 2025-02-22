@@ -1,6 +1,7 @@
 package friends.aidelivery.review.domain;
 
-import friends.aidelivery.order.domain.Order;
+import friends.aidelivery.common.domain.TimeStamp;
+import friends.aidelivery.order.domain.OrderHistory;
 import friends.aidelivery.review.domain.vo.Rating;
 import friends.aidelivery.review.domain.vo.ReviewContent;
 import friends.aidelivery.review.domain.vo.ReviewTime;
@@ -25,7 +26,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_review")
 @Entity
-public class Review {
+public class Review extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,12 +34,15 @@ public class Review {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
+    @JoinColumn(name = "order_history_id", nullable = false)
+    private OrderHistory orderHistory;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Column(name = "store_id")
+    private UUID storeId;
 
     @Embedded
     private ReviewContent content;
@@ -49,26 +53,29 @@ public class Review {
     @Embedded
     private ReviewTime reviewTime;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 
-    public Review(final Order order, final User user, final String content,
+    public Review(final OrderHistory orderHistory, final User user, final String content,
         final Integer rating,
         final LocalDateTime reviewTime) {
-        this.order = order;
+        this.orderHistory = orderHistory;
         this.user = user;
+        this.storeId = orderHistory.getStoreId();
         this.content = new ReviewContent(content);
         this.rating = new Rating(rating);
-        this.reviewTime = new ReviewTime(reviewTime, order.getCompletionTime());
+        this.reviewTime = new ReviewTime(reviewTime, orderHistory.getCompletionTime());
+        this.isDeleted = false;
     }
 
     public void update(final String content, final Integer rating, final LocalDateTime reviewTime) {
         this.content = new ReviewContent(content);
         this.rating = new Rating(rating);
-        this.reviewTime = new ReviewTime(reviewTime, order.getCompletionTime());
+        this.reviewTime = new ReviewTime(reviewTime, orderHistory.getCompletionTime());
     }
 
     public void softDelete() {
-        this.deletedAt = LocalDateTime.now();
+        this.isDeleted = true;
     }
+
 }

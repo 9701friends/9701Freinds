@@ -39,9 +39,9 @@ public class OrderHistoryService {
     }
 
     public OrderHistoryResponse getOrderHistoryForCustomer(final UserDetailsImpl userDetails,
-        final UUID orderId) {
+        final UUID orderHistoryId) {
         final Long userId = userDetails.getUserId();
-        final OrderHistory orderHistory = getOrderHistoryOrElseThrow(orderId);
+        final OrderHistory orderHistory = getOrderHistoryOrElseThrow(orderHistoryId);
         orderHistory.validateCustomer(userId);
         return OrderHistoryResponse.of(orderHistory);
     }
@@ -55,9 +55,9 @@ public class OrderHistoryService {
         return OrderHistoryListResponse.of(orderHistories);
     }
 
-    public OrderHistory getOrderHistoryOrElseThrow(UUID orderId) {
-        return orderHistoryRepository.findByOrderId(orderId)
-            .orElseThrow(() -> new OrderHistoryNotFoundException(orderId));
+    public OrderHistory getOrderHistoryOrElseThrow(UUID orderHistoryId) {
+        return orderHistoryRepository.findById(orderHistoryId)
+            .orElseThrow(() -> new OrderHistoryNotFoundException(orderHistoryId));
     }
 
     public OrderHistoryListResponse getOrderHistoryListForOwner(final UserDetailsImpl userDetails,
@@ -100,6 +100,4 @@ public class OrderHistoryService {
 
         return PageRequest.of(page, size, sortObj);
     }
-
-
 }
