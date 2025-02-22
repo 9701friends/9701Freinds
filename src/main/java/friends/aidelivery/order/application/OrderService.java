@@ -1,23 +1,20 @@
 package friends.aidelivery.order.application;
 
+import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
 import friends.aidelivery.order.application.dto.request.OrderCancelRequest;
 import friends.aidelivery.order.application.dto.request.OrderCreateRequest;
 import friends.aidelivery.order.application.dto.response.OrderResponse;
 import friends.aidelivery.order.domain.Order;
-import friends.aidelivery.order.domain.repository.OrderProductRepository;
+import friends.aidelivery.order.domain.enums.OrderStatus;
 import friends.aidelivery.order.domain.repository.OrderRepository;
-import friends.aidelivery.order.exception.OrderForbiddenException;
 import friends.aidelivery.order.exception.OrderNotFoundException;
 import friends.aidelivery.product.application.ProductService;
 import friends.aidelivery.product.domain.Product;
 import friends.aidelivery.store.domain.Store;
 import friends.aidelivery.store.domain.repository.StoreRepository;
 import friends.aidelivery.store.exception.StoreNotFoundException;
+import friends.aidelivery.user.application.UserService;
 import friends.aidelivery.user.domain.User;
-import friends.aidelivery.user.domain.enums.UserRoleEnum;
-import friends.aidelivery.user.domain.repository.UserRepository;
-import friends.aidelivery.user.domain.vo.Email;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,51 +30,36 @@ public class OrderService {
 
     private final ProductService productService;
     private final OrderRepository orderRepository;
-    private final OrderProductRepository orderProductRepository;
     private final StoreRepository storeRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final OrderHistoryService orderHistoryService;
 
     @Transactional
-    public OrderResponse createOrder(final OrderCreateRequest request, Email email) {
+    public OrderResponse createOrder(final OrderCreateRequest request,
+        final UserDetailsImpl userDetails) {
 
-        /*
-        주문 생성 흐름
-        1. 유저 검증
-        2. 가게 검증
-        3. 상품 검증
-        4. totalPrice 계산
-        5. order 저장
-        6. orderProduct 저장
-         */
+        final Long userId = userDetails.getUserId();
+        final User user = userService.getUserOrElseThrow(userId);
 
-        // todo 1. 유저 검증
-        final User user = userRepository.findByEmail(email)
-            .orElseThrow(EntityNotFoundException::new);
-
-        // 가게 검증
         final UUID storeId = request.storeId();
         final Store store = storeRepository.findById(storeId)
             .orElseThrow(() -> new StoreNotFoundException(storeId));
 
-        // 상품 검증 -> 상품,수량 Map 생성
         final Map<Product, Integer> productQuantityMap = findProductQuantityMap(request);
 
-        // totalPrice 계산
         final Long totalPrice = calculateTotalPrice(productQuantityMap);
 
-        // 주문 저장 (초기 상태: 결제 대기)
-        Order order = Order.create(user, store, request, totalPrice, productQuantityMap);
-        Order saved = orderRepository.save(order);
+        final Order order = Order.create(user, store, request, totalPrice, productQuantityMap);
+        final Order saved = orderRepository.save(order);
 
         return OrderResponse.of(saved);
-
     }
 
     private Map<Product, Integer> findProductQuantityMap(final OrderCreateRequest request) {
-        List<UUID> productIds = request.getProductIds();
-        Map<UUID, Integer> quantityMap = request.getQuantityMap();
+        final List<UUID> productIds = request.getProductIds();
+        final Map<UUID, Integer> quantityMap = request.getQuantityMap();
 
-        List<Product> products = findAllByProductIds(productIds);
+        final List<Product> products = findAllByProductIds(productIds);
 
         return products.stream()
             .collect(Collectors.toMap(
@@ -104,48 +86,44 @@ public class OrderService {
     }
 
     public Order validateOrderForReview(final UUID orderId) {
-        Order order = findOrderOrThrow(orderId);
+        final Order order = findOrderOrThrow(orderId);
         order.checkOrderCompleted();
         return order;
     }
 
     public OrderResponse getOrderById(final UUID orderId) {
-        Order order = findOrderOrThrow(orderId);
+        final Order order = findOrderOrThrow(orderId);
         return OrderResponse.of(order);
     }
 
     @Transactional
-    public void cancelOrder(final UUID orderId, final Email email,
+    public void cancelOrder(final UUID orderId, final UserDetailsImpl userDetails,
         final OrderCancelRequest request) {
-        User user = userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
-        Order order = findOrderOrThrow(orderId);
+        final Long userId = userDetails.getUserId();
+        final User user = userService.getUserOrElseThrow(userId);
+        final Order order = findOrderOrThrow(orderId);
         order.cancelOrder(user.getId(), request.cancelTime());
     }
 
-    private Order findOrderOrThrow(final UUID orderId) {
+    public Order findOrderOrThrow(final UUID orderId) {
         return orderRepository.findById(orderId)
             .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 
     @Transactional
-    public void acceptOrder(final UUID orderId, final Email email) {
-        // userService -> owner 권한 검증
-        User user = userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
-        if (user.getRole() == UserRoleEnum.CUSTOMER) {
-            throw new OrderForbiddenException(orderId);
-        }
-        // todo storeService -> 주문한 가게주인이 맞는지 검증
-        Order order = findOrderOrThrow(orderId);
-        order.acceptOrder(user.getId());
+    public void updateOrderStatus(final UUID orderId, final UserDetailsImpl userDetails, final
+    OrderStatus status) {
+        final User user = userService.getUserOrElseThrow(userDetails.getUserId());
+        final Order order = findOrderOrThrow(orderId);
+        order.updateOrderStatus(user.getId(), status);
     }
 
     @Transactional
-    public void rejectOrder(final UUID orderId, final Email email) {
-        User user = userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
-        if (user.getRole() == UserRoleEnum.CUSTOMER) {
-            throw new OrderForbiddenException(orderId);
-        }
-        Order order = findOrderOrThrow(orderId);
-        order.rejectOrder(user.getId());
+    public void completeOrder(final UUID orderId, final UserDetailsImpl userDetails) {
+        final Long userId = userDetails.getUserId();
+        final User user = userService.getUserOrElseThrow(userId);
+        final Order order = findOrderOrThrow(orderId);
+        order.completeOrder(user.getId());
+        orderHistoryService.saveOrderHistory(order);
     }
 }

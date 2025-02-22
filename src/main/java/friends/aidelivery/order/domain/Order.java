@@ -1,9 +1,11 @@
 package friends.aidelivery.order.domain;
 
+import friends.aidelivery.common.domain.TimeStamp;
 import friends.aidelivery.order.application.dto.request.OrderCreateRequest;
 import friends.aidelivery.order.domain.enums.OrderStatus;
 import friends.aidelivery.order.domain.enums.OrderType;
 import friends.aidelivery.order.exception.OrderCancelException;
+import friends.aidelivery.order.exception.OrderForbiddenException;
 import friends.aidelivery.order.exception.OrderNotCompletedException;
 import friends.aidelivery.product.domain.Product;
 import friends.aidelivery.store.domain.Store;
@@ -34,7 +36,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_order")
 @Entity
-public class Order {
+public class Order extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -72,7 +74,7 @@ public class Order {
     @Column(name = "completion_time")
     private LocalDateTime completionTime;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderProduct> orderProducts;
 
     private Order(final User user, final Store store, final OrderType orderType,
@@ -132,21 +134,26 @@ public class Order {
         }
     }
 
-    public void acceptOrder(final Long userId) {
-        this.orderStatus = OrderStatus.PENDING;
-    }
-
-    public void rejectOrder(final Long userId) {
-        this.orderStatus = OrderStatus.REJECTED;
-    }
-
     private void validateCustomer(final Long userId) {
         if (!Objects.equals(user.getId(), userId)) {
-            throw new OrderNotCompletedException(this.id);
+            throw new OrderForbiddenException(this.id);
         }
     }
 
-    private void validateOwner(final String email) {
-        // todo 가게주인과 맞는지 검증 로직 필요
+    public void updateOrderStatus(final Long userId, final OrderStatus orderStatus) {
+        validateOwner(userId);
+        this.orderStatus = orderStatus;
+    }
+
+    public void completeOrder(final Long userId) {
+        validateOwner(userId);
+        this.orderStatus = OrderStatus.COMPLETED;
+        this.completionTime = LocalDateTime.now();
+    }
+
+    private void validateOwner(final Long userId) {
+        if (!Objects.equals(store.getUser().getId(), userId)) {
+            throw new OrderForbiddenException(this.id);
+        }
     }
 }
