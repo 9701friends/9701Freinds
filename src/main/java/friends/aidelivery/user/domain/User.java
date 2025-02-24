@@ -10,6 +10,7 @@ import friends.aidelivery.user.domain.vo.Name;
 import friends.aidelivery.user.domain.vo.Nickname;
 import friends.aidelivery.user.domain.vo.Password;
 import friends.aidelivery.user.domain.vo.Phone;
+import friends.aidelivery.user.exception.UserUnauthorizedException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -96,6 +97,10 @@ public class User extends TimeStamp {
 
     public static User createUser(UserInfoRequestDto userCreateRequest,
         PasswordEncoder passwordEncoder) {
+
+        if (!userCreateRequest.role().equals(UserRoleEnum.CUSTOMER)) {
+            throw new UserUnauthorizedException();
+        }
 
         return new User(
             new Name(userCreateRequest.name()),
