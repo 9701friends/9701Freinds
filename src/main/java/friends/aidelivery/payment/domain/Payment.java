@@ -1,53 +1,56 @@
 package friends.aidelivery.payment.domain;
 
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import friends.aidelivery.common.domain.TimeStamp;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.util.UUID;
-
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 @Table(name = "p_payment")
-public class Payment { //db에 접근
+public class Payment extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "payment_id")
-    private UUID paymentId;
+    private UUID id;
 
-    @Column(name = "payment_state")
-    private String paymentState;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private PaymentStatus status;
 
-    @Column(name = "payment")
-    private Double payment;
+    @Column(name = "price")
+    private Long price;
 
     @Column(name = "user_id")
     private Long userId;
 
-    @JsonProperty("order_id")
-    @Column(name = "orderId")
+    @Column(name = "order_id")
     private UUID orderId;
 
-    //결제 생성자
-    public Payment(long userId, UUID orderId, Double payment, String paymentState) {
+    @Column(name = "store_id")
+    private UUID storeId;
+
+    public Payment(final Long userId, final UUID orderId, final Long price,
+        final PaymentStatus status, final UUID storeId) {
         this.userId = userId;
         this.orderId = orderId;
-        this.payment = payment;
-        this.paymentState = paymentState;
+        this.price = price;
+        this.status = status;
+        this.storeId = storeId;
     }
 
-    // 결제 승인 처리 메소드
-    public void updatePaymentState(String paymentState) {
-        this.paymentState = paymentState;
+    public void updatePaymentState(final PaymentStatus status) {
+        this.status = status;
     }
 }
-

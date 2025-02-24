@@ -1,72 +1,102 @@
 package friends.aidelivery.payment.application;
 
+import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
+import friends.aidelivery.payment.application.dto.PaymentRequest;
+import friends.aidelivery.payment.application.dto.PaymentResponse;
 import friends.aidelivery.payment.domain.Payment;
+import friends.aidelivery.payment.domain.PaymentStatus;
 import friends.aidelivery.payment.domain.repository.PaymentRepository;
+import friends.aidelivery.payment.exception.PaymentCheckException;
 import friends.aidelivery.payment.exception.PaymentNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
-
-@RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
 
-    //결제 요청 처리 로직
-    @Transactional
-    //user_id는 String 으로, order_id는 유효아이디로
-    //dto 활용해서 하기
-    public Payment requestPayment(long user_id, UUID order_id, Double payment) {
-        Payment p = new Payment(user_id, order_id, payment, "REQUESTED");
-
-        // 결제 요청 저장
-        return paymentRepository.save(p);
+    public List<PaymentResponse> getPaymentsByUserId(final Long userId, final int page,
+        final int size, final String sortBy, final boolean isAsc) {
+        Pageable pageable = createPageable(page, size, sortBy, isAsc);
+        Page<Payment> payments = paymentRepository.findByUserId(userId, pageable);
+        return payments.getContent().stream().map(PaymentResponse::of).collect(Collectors.toList());
     }
 
-    //결제 승인 처리 로직
-    @Transactional
-    public void approvePayment(UUID paymentId) {
+    public List<PaymentResponse> getPaymentsByStoreId(final UUID storeId, final int page,
+        final int size, final String sortBy, final boolean isAsc) {
+        Pageable pageable = createPageable(page, size, sortBy, isAsc);
+        Page<Payment> payments = paymentRepository.findByStoreId(storeId, pageable);
+        return payments.getContent().stream().map(PaymentResponse::of).collect(Collectors.toList());
+    }
+
+    public PaymentResponse getPayment(UUID paymentId) {
+        Payment payment = getPaymentOrElseThrow(paymentId);
+        return PaymentResponse.of(payment);
+    }
+
+    @Transactional(noRollbackFor = PaymentCheckException.class)
+    public PaymentResponse createPayment(final PaymentRequest request,
+        final UserDetailsImpl userDetails) {
+        final Long userId = userDetails.getUserId();
+        final UUID orderId = request.orderId();
+        final Long price = request.price();
+        final UUID storeId = request.storeId();
+        final Payment payment = new Payment(userId, orderId, price, PaymentStatus.PENDING, storeId);
+        final Payment saved = paymentRepository.save(payment);
+
+        try {
+            requestPayment(saved.getId());
+        } catch (Exception e) {
+            saved.updatePaymentState(PaymentStatus.REJECTED);
+            throw new PaymentCheckException(saved.getId());
+        }
+        saved.updatePaymentState(PaymentStatus.COMPLETED);
+        return PaymentResponse.of(saved);
+    }
+
+    @Transactional(noRollbackFor = PaymentCheckException.class)
+    public PaymentResponse cancelPayment(UUID orderId) {
+
+        final Payment payment = paymentRepository.findByOrderId(orderId)
+            .orElseThrow(() -> new PaymentNotFoundException(orderId));
+
+        try {
+            requestPayment(payment.getId());
+        } catch (Exception e) {
+            payment.updatePaymentState(PaymentStatus.REJECTED);
+            throw new PaymentCheckException(payment.getId());
+        }
+
+        payment.updatePaymentState(PaymentStatus.CANCELED);
+
+        return PaymentResponse.of(payment);
+    }
+
+    // 외부 api 요청
+    private void requestPayment(UUID paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
-
-        payment.updatePaymentState("APPROVED");
-
-        paymentRepository.save(payment); //업데이트 정보 저장
+            .orElseThrow(RuntimeException::new);
     }
 
-    //결제 취소 처리 로직
-    @Transactional
-    public void cancelPayment(UUID paymentId) {
-
-        //결제 찾기
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new PaymentNotFoundException(paymentId));
-
-        // 결제 상태를 취소로 변경
-        payment.updatePaymentState("CANCELED");
-
-        // 상태 저장
-        paymentRepository.save(payment);
+    public Payment getPaymentOrElseThrow(UUID paymentId) {
+        return paymentRepository.findById(paymentId)
+            .orElseThrow(() -> new PaymentNotFoundException(paymentId));
     }
 
-
-    // userId로 결제 내역 전체 조회
-    @Transactional(readOnly = true)
-    public List<Payment> getPaymentsByUserId(Long userId) {
-        paymentRepository.findByUserId(userId);
-        return paymentRepository.findAll();
-    }
-
-
-    //userId와 paymentId에 해당하는 결제 조회
-    @Transactional(readOnly = true)
-    public Payment getPaymentByPaymentIdAndUserId(UUID paymentId, Long userId) {
-        return paymentRepository.findByPaymentIdAndUserId(paymentId, userId)
-                .orElse(null); // 없으면 null 반환
+    private Pageable createPageable(int page, int size, String sortBy, boolean isAsc) {
+        final Direction direction = isAsc ? Direction.ASC : Direction.DESC;
+        return PageRequest.of(page, size, Sort.by(direction, sortBy));
     }
 }
