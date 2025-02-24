@@ -32,6 +32,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         log.info("로그인:{}", user);
         return new UserDetailsImpl(user.getEmail().getValue(), user.getId(), user.getRole(),
-            user.getPassword());
+            user.getPassword().getValue());
     }
 }

@@ -7,6 +7,7 @@ import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
 import friends.aidelivery.user.application.dto.response.UserResponseDto;
 import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.repository.UserRepository;
+import friends.aidelivery.user.domain.vo.Password;
 import friends.aidelivery.user.exception.UserDuplicateEmailException;
 import friends.aidelivery.user.exception.UserDuplicatePhoneException;
 import friends.aidelivery.user.exception.UserMismatchException;
@@ -32,7 +33,9 @@ public class UserService {
     @Transactional
     public UserInfoResponseDto singIn(UserInfoRequestDto userInfoRequestDto) {
         try {
-            User user = User.createUser(userInfoRequestDto, passwordEncoder);
+            Password encodePassword = Password.encrypt(userInfoRequestDto.password(),
+                passwordEncoder);
+            User user = User.createUser(userInfoRequestDto, encodePassword);
             User saved = userRepository.save(user);
             return UserInfoResponseDto.of(saved);
         } catch (DataIntegrityViolationException e) {
@@ -57,7 +60,9 @@ public class UserService {
         User user = getUserOrElseThrow(userId);
 
         userMismatch(userDetails, userId);
-        user.updateUser(userInfoRequestDto, passwordEncoder);
+        Password encodePassword = Password.encrypt(userInfoRequestDto.password(),
+            passwordEncoder);
+        user.updateUser(userInfoRequestDto, encodePassword);
         return UserResponseDto.of(user);
     }
 
@@ -66,7 +71,7 @@ public class UserService {
         UserDeleteRequestDto requestDto) {
         User user = getUserOrElseThrow(userId);
         userMismatch(userDetails, userId);
-        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword().getValue())) {
             throw new UserPasswordMismatchException();
         }
         user.softDeleteUser();
