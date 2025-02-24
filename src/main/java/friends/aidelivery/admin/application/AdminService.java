@@ -6,7 +6,7 @@ import friends.aidelivery.admin.application.dto.response.AdminUserRequestDto;
 import friends.aidelivery.admin.application.dto.response.AdminUserUpdateResponse;
 import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
 import friends.aidelivery.user.application.UserService;
-import friends.aidelivery.user.application.dto.response.UserResponseDto;
+import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
 import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
 import friends.aidelivery.user.domain.repository.UserRepository;
@@ -36,9 +36,9 @@ public class AdminService {
         return userPage.map(AdminUserRequestDto::of);
     }
 
-    public UserResponseDto findUser(Long userId) {
+    public UserInfoResponseDto findUser(Long userId) {
 
-        return UserResponseDto.of(userService.getUserOrElseThrow(userId));
+        return UserInfoResponseDto.of(userService.getUserOrElseThrow(userId));
     }
 
     @Transactional

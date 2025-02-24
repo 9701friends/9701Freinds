@@ -10,6 +10,7 @@ import friends.aidelivery.user.domain.vo.Name;
 import friends.aidelivery.user.domain.vo.Nickname;
 import friends.aidelivery.user.domain.vo.Password;
 import friends.aidelivery.user.domain.vo.Phone;
+import friends.aidelivery.user.exception.UserUnauthorizedException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -23,7 +24,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Getter
@@ -50,8 +50,8 @@ public class User extends TimeStamp {
     @Enumerated(EnumType.STRING)
     private UserRoleEnum role;
 
-    @Column(nullable = false)
-    private String password;
+    @Enumerated(EnumType.STRING)
+    private Password password;
 
     @Embedded
     private Address address;
@@ -63,23 +63,23 @@ public class User extends TimeStamp {
     private Boolean isDeleted;
 
     private User(Name name, Email email, Nickname nickname, UserRoleEnum role,
-        String encryptedPassword, Address address, Phone phone) {
+        Password password, Address address, Phone phone) {
         this.name = name;
         this.email = email;
         this.nickname = nickname;
         this.role = role;
-        this.password = encryptedPassword;
+        this.password = password;
         this.address = address;
         this.phone = phone;
         this.isDeleted = false;
     }
 
-    public void updateUser(UserInfoRequestDto userInfoRequestDto, PasswordEncoder passwordEncoder) {
+    public void updateUser(UserInfoRequestDto userInfoRequestDto, Password password) {
         this.name = new Name(userInfoRequestDto.name());
         this.email = new Email(userInfoRequestDto.email());
         this.nickname = new Nickname(userInfoRequestDto.nickname());
         this.role = userInfoRequestDto.role();
-        this.password = Password.encrypt(userInfoRequestDto.password(), passwordEncoder).getValue();
+        this.password = password;
         this.address = new Address(userInfoRequestDto.address());
         this.phone = new Phone(userInfoRequestDto.phone());
     }
@@ -95,14 +95,18 @@ public class User extends TimeStamp {
     }
 
     public static User createUser(UserInfoRequestDto userCreateRequest,
-        PasswordEncoder passwordEncoder) {
+        Password password) {
+
+        if (!userCreateRequest.role().equals(UserRoleEnum.CUSTOMER)) {
+            throw new UserUnauthorizedException();
+        }
 
         return new User(
             new Name(userCreateRequest.name()),
             new Email(userCreateRequest.email()),
             new Nickname(userCreateRequest.nickname()),
             userCreateRequest.role(),
-            Password.encrypt(userCreateRequest.password(), passwordEncoder).getValue(),
+            password,
             new Address(userCreateRequest.address()), new Phone(userCreateRequest.phone())
         );
     }
