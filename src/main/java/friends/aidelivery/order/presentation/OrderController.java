@@ -31,7 +31,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @GetMapping("{orderId}")
+    @GetMapping("/{orderId}")
     public ResponseEntity<CommonResponse> getOrderInfo(
         @PathVariable UUID orderId) {
         OrderResponse response = orderService.getOrderById(orderId);
@@ -49,7 +49,7 @@ public class OrderController {
     }
 
     @Secured({Authority.CUSTOMER, Authority.MANAGER, Authority.MASTER})
-    @PostMapping("{orderId}/cancel")
+    @PostMapping("/{orderId}/cancel")
     public ResponseEntity<CommonResponse> cancelOrder(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @PathVariable UUID orderId,
@@ -59,7 +59,7 @@ public class OrderController {
     }
 
     @Secured({Authority.OWNER, Authority.MANAGER, Authority.MASTER})
-    @PatchMapping("{orderId}/status")
+    @PatchMapping("/{orderId}/status")
     public ResponseEntity<CommonResponse> updateOrderStatus(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @PathVariable UUID orderId,
@@ -69,11 +69,21 @@ public class OrderController {
     }
 
     @Secured({Authority.OWNER, Authority.MANAGER, Authority.MASTER})
-    @PostMapping("{orderId}/complete")
+    @PostMapping("/{orderId}/complete")
     public ResponseEntity<CommonResponse> completeOrder(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @PathVariable UUID orderId) {
         orderService.completeOrder(orderId, userDetails);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
+
+    @Secured({Authority.OWNER, Authority.MANAGER, Authority.MASTER})
+    @PostMapping("/{orderId}/reject")
+    public ResponseEntity<CommonResponse> rejectOrder(
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @PathVariable UUID orderId) {
+        orderService.rejectOrder(orderId, userDetails);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
+    }
+
 }

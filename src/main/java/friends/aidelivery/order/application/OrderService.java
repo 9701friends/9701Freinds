@@ -8,6 +8,7 @@ import friends.aidelivery.order.domain.Order;
 import friends.aidelivery.order.domain.enums.OrderStatus;
 import friends.aidelivery.order.domain.repository.OrderRepository;
 import friends.aidelivery.order.exception.OrderNotFoundException;
+import friends.aidelivery.payment.application.PaymentService;
 import friends.aidelivery.product.application.ProductService;
 import friends.aidelivery.product.domain.Product;
 import friends.aidelivery.store.domain.Store;
@@ -33,6 +34,7 @@ public class OrderService {
     private final StoreRepository storeRepository;
     private final UserService userService;
     private final OrderHistoryService orderHistoryService;
+    private final PaymentService paymentService;
 
     @Transactional
     public OrderResponse createOrder(final OrderCreateRequest request,
@@ -97,6 +99,7 @@ public class OrderService {
         final User user = userService.getUserOrElseThrow(userId);
         final Order order = getOrderOrThrow(orderId);
         order.cancelOrder(user.getId(), request.cancelTime());
+        paymentService.cancelPayment(orderId);
     }
 
     public Order getOrderOrThrow(final UUID orderId) {
@@ -110,6 +113,14 @@ public class OrderService {
         final User user = userService.getUserOrElseThrow(userDetails.getUserId());
         final Order order = getOrderOrThrow(orderId);
         order.updateOrderStatus(user.getId(), status);
+    }
+
+    @Transactional
+    public void rejectOrder(final UUID orderId, final UserDetailsImpl userDetails) {
+        final User user = userService.getUserOrElseThrow(userDetails.getUserId());
+        final Order order = getOrderOrThrow(orderId);
+        order.updateOrderStatus(user.getId(), OrderStatus.REJECTED);
+        paymentService.cancelPayment(orderId);
     }
 
     @Transactional
