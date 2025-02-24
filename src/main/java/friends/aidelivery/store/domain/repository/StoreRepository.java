@@ -1,6 +1,8 @@
 package friends.aidelivery.store.domain.repository;
 
 import friends.aidelivery.store.domain.Store;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -12,4 +14,10 @@ public interface StoreRepository {
     Optional<Store> findById(UUID uuid);
 
     Page<Store> findByName(String keyword, Pageable pageable);
+
+    List<Store> findAllActiveStores();
+
+    List<Store> findAllDeactiveStores();
+
+    void softDeleteStore(UUID storeId);
 }

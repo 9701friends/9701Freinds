@@ -4,6 +4,7 @@ import friends.aidelivery.review.exception.ReviewRatingMaxException;
 import friends.aidelivery.review.exception.ReviewRatingMinException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -36,5 +37,13 @@ public class Rating {
         if (value > MAX_RATING) {
             throw new ReviewRatingMaxException(MAX_RATING, value);
         }
+    }
+
+    public Rating update(final Integer value) {
+        return new Rating(value);
+    }
+
+    public BigDecimal getBigDecimalValue() {
+        return new BigDecimal(value);
     }
 }

@@ -1,15 +1,22 @@
 package friends.aidelivery.review.domain;
 
+import friends.aidelivery.common.domain.TimeStamp;
+import friends.aidelivery.order.domain.OrderHistory;
 import friends.aidelivery.review.domain.vo.Rating;
 import friends.aidelivery.review.domain.vo.ReviewContent;
 import friends.aidelivery.review.domain.vo.ReviewTime;
+import friends.aidelivery.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,20 +26,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_review")
 @Entity
-public class Review {
+public class Review extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "review_id")
     private UUID id;
 
-    // todo order 연관관계 설정
-    @Column(name = "order_id", nullable = false)
-    private UUID orderId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_history_id", nullable = false)
+    private OrderHistory orderHistory;
 
-    // todo user 연관관계 설정
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(name = "store_id")
+    private UUID storeId;
 
     @Embedded
     private ReviewContent content;
@@ -43,25 +53,29 @@ public class Review {
     @Embedded
     private ReviewTime reviewTime;
 
-    public Review(final UUID orderId, final UUID userId, final ReviewContent content,
-        final Rating rating,
-        final ReviewTime reviewTime) {
-        this.orderId = orderId;
-        this.userId = userId;
-        this.content = content;
-        this.rating = rating;
-        this.reviewTime = reviewTime;
-    }
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 
-    public Review(final UUID orderId, final UUID userId, final String content,
+    public Review(final OrderHistory orderHistory, final User user, final String content,
         final Integer rating,
-        final ReviewTime reviewTime) {
-        this.orderId = orderId;
-        this.userId = userId;
+        final LocalDateTime reviewTime) {
+        this.orderHistory = orderHistory;
+        this.user = user;
+        this.storeId = orderHistory.getStoreId();
         this.content = new ReviewContent(content);
         this.rating = new Rating(rating);
-        this.reviewTime = reviewTime;
+        this.reviewTime = new ReviewTime(reviewTime, orderHistory.getCompletionTime());
+        this.isDeleted = false;
     }
 
+    public void update(final String content, final Integer rating, final LocalDateTime reviewTime) {
+        this.content = new ReviewContent(content);
+        this.rating = new Rating(rating);
+        this.reviewTime = new ReviewTime(reviewTime, orderHistory.getCompletionTime());
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
+    }
 
 }

@@ -9,4 +9,6 @@ public interface StoreCategoryRepository {
     StoreCategory save(StoreCategory storeCategory);
 
     Optional<StoreCategory> findById(UUID uuid);
+
+    void softDeleteCategory(UUID uuid);
 }

@@ -1,10 +1,14 @@
 package friends.aidelivery.order.domain;
 
+import friends.aidelivery.common.domain.TimeStamp;
 import friends.aidelivery.order.application.dto.request.OrderCreateRequest;
 import friends.aidelivery.order.domain.enums.OrderStatus;
 import friends.aidelivery.order.domain.enums.OrderType;
+import friends.aidelivery.order.exception.OrderCancelException;
+import friends.aidelivery.order.exception.OrderForbiddenException;
 import friends.aidelivery.product.domain.Product;
 import friends.aidelivery.store.domain.Store;
+import friends.aidelivery.user.domain.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +25,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,7 +35,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_order")
 @Entity
-public class Order {
+public class Order extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -41,8 +46,9 @@ public class Order {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_type", nullable = false)
@@ -67,15 +73,15 @@ public class Order {
     @Column(name = "completion_time")
     private LocalDateTime completionTime;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderProduct> orderProducts;
 
-    private Order(final Long userId, final Store store, final OrderType orderType,
+    private Order(final User user, final Store store, final OrderType orderType,
         final String orderAddress,
         final String comment, final LocalDateTime orderTime, final Long totalPrice,
         final OrderStatus orderStatus,
         final Map<Product, Integer> productQuantityMap) {
-        this.userId = userId;
+        this.user = user;
         this.store = store;
         this.orderType = orderType;
         this.orderStatus = orderStatus;
@@ -87,14 +93,14 @@ public class Order {
     }
 
     public static Order create(
-        final Long userId,
+        final User user,
         final Store store,
         final OrderCreateRequest request,
         final Long totalPrice,
         final Map<Product, Integer> productQuantityMap
     ) {
-        return new Order(userId, store, request.orderType(), request.orderAddress(),
-            request.comment(), request.orderTime(), totalPrice, OrderStatus.PAYMENT_PENDING,
+        return new Order(user, store, request.orderType(), request.orderAddress(),
+            request.comment(), request.orderTime(), totalPrice, OrderStatus.PENDING,
             productQuantityMap);
     }
 
@@ -105,4 +111,39 @@ public class Order {
             .toList();
     }
 
+    public void cancelOrder(final Long userId, final LocalDateTime cancelTime) {
+        validateCustomer(userId);
+        validateCancel(cancelTime);
+        this.orderStatus = OrderStatus.CANCELED;
+    }
+
+    private void validateCancel(final LocalDateTime cancelTime) {
+        final long allowed = 5;
+        if (this.orderTime.isBefore(cancelTime.minusMinutes(allowed))) {
+            throw new OrderCancelException(allowed);
+        }
+    }
+
+    private void validateCustomer(final Long userId) {
+        if (!Objects.equals(user.getId(), userId)) {
+            throw new OrderForbiddenException(this.id);
+        }
+    }
+
+    public void updateOrderStatus(final Long userId, final OrderStatus orderStatus) {
+        validateOwner(userId);
+        this.orderStatus = orderStatus;
+    }
+
+    public void completeOrder(final Long userId) {
+        validateOwner(userId);
+        this.orderStatus = OrderStatus.COMPLETED;
+        this.completionTime = LocalDateTime.now();
+    }
+
+    private void validateOwner(final Long userId) {
+        if (!Objects.equals(store.getUser().getId(), userId)) {
+            throw new OrderForbiddenException(this.id);
+        }
+    }
 }

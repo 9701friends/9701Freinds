@@ -198,8 +198,8 @@ class ProductServiceTest extends ServiceTest {
         assertThat(deleted2.getId()).isEqualTo(product2.getId());
         assertThat(deleted1.getStatus()).isEqualTo(ProductStatus.HOLD);
         assertThat(deleted2.getStatus()).isEqualTo(ProductStatus.HOLD);
-        assertThat(deleted1.getDeletedAt()).isNotNull();
-        assertThat(deleted2.getDeletedAt()).isNotNull();
+        assertThat(deleted1.isDeleted()).isTrue();
+        assertThat(deleted2.isDeleted()).isTrue();
         assertThat(productCategory.getProducts()).isEmpty();
     }
 

@@ -1,6 +1,8 @@
 package friends.aidelivery.store.infrastructure;
 
 import static friends.aidelivery.store.domain.QStore.store;
+import static friends.aidelivery.store.domain.QStoreCategoryMapping.storeCategoryMapping;
+import static friends.aidelivery.store.domain.QStoreRegionMapping.storeRegionMapping;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import friends.aidelivery.store.domain.Store;
@@ -35,18 +37,62 @@ public class StoreRepositoryImpl implements StoreRepository {
     @Override
     public Page<Store> findByName(String keyword, Pageable pageable) {
         List<Store> stores = queryFactory
-            .selectFrom(store)
-            .where(store.name.value.containsIgnoreCase(keyword)) // 대소문자 무시
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
+                .selectFrom(store)
+                .where(
+                        store.name.value.containsIgnoreCase(keyword), // 대소문자 무시
+                        store.isDeleted.eq(false) // 삭제되지 않은 가게만 조회
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
         Long total = queryFactory
-            .select(store.count())
-            .from(store)
-            .where(store.name.value.containsIgnoreCase(keyword))
-            .fetchOne();
+                .select(store.count())
+                .from(store)
+                .where(
+                        store.name.value.containsIgnoreCase(keyword),
+                        store.isDeleted.eq(false) // 삭제되지 않은 가게만 조회
+                )
+                .fetchOne();
 
         return new PageImpl<>(stores, pageable, total != null ? total : 0);
     }
+
+    @Override
+    public List<Store> findAllActiveStores() {
+        return queryFactory
+                .selectFrom(store)
+                .where(store.isDeleted.eq(false)) // 삭제되지 않은 가게만 조회
+                .fetch();
+    }
+
+    @Override
+    public List<Store> findAllDeactiveStores() {
+        return queryFactory
+                .selectFrom(store)
+                .where(store.isDeleted.eq(true))
+                .fetch();
+    }
+
+    @Override
+    public void softDeleteStore(UUID storeId) {
+        queryFactory
+                .update(store)
+                .set(store.isDeleted, true)
+                .where(store.id.eq(storeId))
+                .execute();
+
+        queryFactory
+                .update(storeRegionMapping)
+                .set(storeRegionMapping.isDeleted,true)
+                .where(storeRegionMapping.store.id.eq(storeId))
+                .execute();
+
+        queryFactory
+                .update(storeCategoryMapping)
+                .set(storeCategoryMapping.isDeleted,true)
+                .where(storeCategoryMapping.store.id.eq(storeId))
+                .execute();
+    }
+
 }

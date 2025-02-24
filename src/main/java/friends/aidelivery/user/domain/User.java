@@ -1,6 +1,8 @@
 package friends.aidelivery.user.domain;
 
-import friends.aidelivery.user.application.dto.request.UserCreateRequest;
+import friends.aidelivery.admin.application.dto.request.AdminUserUpdateRequest;
+import friends.aidelivery.common.domain.TimeStamp;
+import friends.aidelivery.user.application.dto.request.UserInfoRequestDto;
 import friends.aidelivery.user.domain.enums.UserRoleEnum;
 import friends.aidelivery.user.domain.vo.Address;
 import friends.aidelivery.user.domain.vo.Email;
@@ -18,6 +20,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,8 +28,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Entity
 @Getter
 @Table(name = "p_user")
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,6 +59,9 @@ public class User {
     @Embedded
     private Phone phone;
 
+    @Column(nullable = false)
+    private Boolean isDeleted;
+
     private User(Name name, Email email, Nickname nickname, UserRoleEnum role,
         String encryptedPassword, Address address, Phone phone) {
         this.name = name;
@@ -64,9 +71,30 @@ public class User {
         this.password = encryptedPassword;
         this.address = address;
         this.phone = phone;
+        this.isDeleted = false;
     }
 
-    public static User createUser(UserCreateRequest userCreateRequest,
+    public void updateUser(UserInfoRequestDto userInfoRequestDto, PasswordEncoder passwordEncoder) {
+        this.name = new Name(userInfoRequestDto.name());
+        this.email = new Email(userInfoRequestDto.email());
+        this.nickname = new Nickname(userInfoRequestDto.nickname());
+        this.role = userInfoRequestDto.role();
+        this.password = Password.encrypt(userInfoRequestDto.password(), passwordEncoder).getValue();
+        this.address = new Address(userInfoRequestDto.address());
+        this.phone = new Phone(userInfoRequestDto.phone());
+    }
+
+    public void updateUserByAdmin(AdminUserUpdateRequest request) {
+        this.address = new Address(request.address());
+        this.role = request.role();
+        this.phone = new Phone(request.phone());
+    }
+
+    public void updateUserRole(UserRoleEnum role) {
+        this.role = role;
+    }
+
+    public static User createUser(UserInfoRequestDto userCreateRequest,
         PasswordEncoder passwordEncoder) {
 
         return new User(
@@ -77,5 +105,9 @@ public class User {
             Password.encrypt(userCreateRequest.password(), passwordEncoder).getValue(),
             new Address(userCreateRequest.address()), new Phone(userCreateRequest.phone())
         );
+    }
+
+    public void softDeleteUser() {
+        this.isDeleted = true;
     }
 }
