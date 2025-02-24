@@ -69,7 +69,7 @@ public class UserController {
     public ResponseEntity<CommonResponse> findUserInfo(@PathVariable Long userId,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        UserResponseDto response = userService.findUserInfo(userId, userDetails);
+        UserInfoResponseDto response = userService.findUserInfo(userId, userDetails);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }

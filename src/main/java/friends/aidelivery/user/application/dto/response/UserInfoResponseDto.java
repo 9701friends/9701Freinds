@@ -10,9 +10,10 @@ public record UserInfoResponseDto(
     UserRoleEnum role,
     String phone,
     String address,
-    Long id // 임시
+    Long userId // 임시
 ) {
-    public static UserInfoResponseDto of(User user){
+
+    public static UserInfoResponseDto of(User user) {
         return new UserInfoResponseDto(
             user.getName().getValue(),
             user.getEmail().getValue(),

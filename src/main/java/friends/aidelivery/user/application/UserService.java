@@ -41,13 +41,13 @@ public class UserService {
         return null;
     }
 
-    public UserResponseDto findUserInfo(Long userId, UserDetailsImpl userDetails) {
+    public UserInfoResponseDto findUserInfo(Long userId, UserDetailsImpl userDetails) {
 
         User user = getUserOrElseThrow(userId);
 
         userMismatch(userDetails, user.getId());
 
-        return UserResponseDto.of(user);
+        return UserInfoResponseDto.of(user);
     }
 
     @Transactional
