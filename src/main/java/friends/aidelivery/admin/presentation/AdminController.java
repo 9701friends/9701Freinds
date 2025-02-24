@@ -8,7 +8,7 @@ import friends.aidelivery.admin.application.dto.response.AdminUserUpdateResponse
 import friends.aidelivery.common.application.dto.CommonResponse;
 import friends.aidelivery.common.infrastructure.security.UserDetailsImpl;
 import friends.aidelivery.common.util.ResponseVOUtils;
-import friends.aidelivery.user.application.dto.response.UserResponseDto;
+import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
 import friends.aidelivery.user.domain.enums.UserRoleEnum.Authority;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +49,7 @@ public class AdminController {
     @Secured({Authority.MANAGER, Authority.MASTER})
     @GetMapping("/{userId}")
     public ResponseEntity<CommonResponse> findUser(@PathVariable Long userId) {
-        UserResponseDto response = adminService.findUser(userId);
+        UserInfoResponseDto response = adminService.findUser(userId);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
