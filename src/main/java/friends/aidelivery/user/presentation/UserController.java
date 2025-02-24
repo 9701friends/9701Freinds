@@ -8,14 +8,12 @@ import friends.aidelivery.user.application.dto.request.UserDeleteRequestDto;
 import friends.aidelivery.user.application.dto.request.UserInfoRequestDto;
 import friends.aidelivery.user.application.dto.response.UserInfoResponseDto;
 import friends.aidelivery.user.application.dto.response.UserResponseDto;
-import friends.aidelivery.user.domain.enums.UserRoleEnum.Authority;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,7 +65,6 @@ public class UserController {
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
-    @Secured({Authority.MANAGER, Authority.MASTER})
     @GetMapping("/{userId}")
     public ResponseEntity<CommonResponse> findUserInfo(@PathVariable Long userId,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
