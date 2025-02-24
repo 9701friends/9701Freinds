@@ -50,7 +50,6 @@ public class User extends TimeStamp {
     @Enumerated(EnumType.STRING)
     private UserRoleEnum role;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Password password;
 

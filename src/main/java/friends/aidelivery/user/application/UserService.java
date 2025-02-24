@@ -33,7 +33,7 @@ public class UserService {
     @Transactional
     public UserInfoResponseDto singIn(UserInfoRequestDto userInfoRequestDto) {
         try {
-            Password encodePassword = Password.encrypt(userInfoRequestDto.password(),
+            Password encodePassword = Password.of(userInfoRequestDto.password(),
                 passwordEncoder);
             User user = User.createUser(userInfoRequestDto, encodePassword);
             User saved = userRepository.save(user);
@@ -60,7 +60,7 @@ public class UserService {
         User user = getUserOrElseThrow(userId);
 
         userMismatch(userDetails, userId);
-        Password encodePassword = Password.encrypt(userInfoRequestDto.password(),
+        Password encodePassword = Password.of(userInfoRequestDto.password(),
             passwordEncoder);
         user.updateUser(userInfoRequestDto, encodePassword);
         return UserResponseDto.of(user);
