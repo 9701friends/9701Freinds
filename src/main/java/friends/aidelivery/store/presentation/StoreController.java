@@ -68,6 +68,20 @@ public class StoreController {
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(pageResponse),
                 HttpStatus.OK);
     }
+    
+    @GetMapping("/region")
+    public ResponseEntity<CommonResponse> getStoresByRegion(
+        @RequestParam UUID regionUUID,
+        @RequestParam String sortBy,
+        @RequestParam int page,
+        @RequestParam int size,
+        @RequestParam boolean isAsc
+    ){
+
+        Page<StoreResponseDto> pageResponse = storeService.getStoresByRegion(regionUUID,sortBy,page,size,isAsc);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(pageResponse),
+            HttpStatus.OK);
+    }
 
     @Secured({UserRoleEnum.Authority.MANAGER, UserRoleEnum.Authority.MASTER, UserRoleEnum.Authority.OWNER})
     @PutMapping("/{storeId}")

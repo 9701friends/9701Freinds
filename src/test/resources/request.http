@@ -8,7 +8,7 @@ Content-Type: application/json
   "name": "홍길동",
   "email": "hong@example.com",
   "nickname": "gildong",
-  "password": "1234",
+  "password": "1234@1313",
   "role": "MASTER",
   "phone": "01012345678",
   "address": "서울특별시 강남구"
@@ -22,7 +22,7 @@ Content-Type: application/json
   "name": "고객님",
   "email": "go@example.com",
   "nickname": "goGaek",
-  "password": "1234",
+  "password": "1234@1313",
   "role": "CUSTOMER",
   "phone": "01012123434",
   "address": "서울특별시 강남구"
@@ -36,7 +36,7 @@ Content-Type: application/json
   "name": "호날두",
   "email": "christiano@ronaldo.com",
   "nickname": "siuuuuu",
-  "password": "1234",
+  "password": "1234@1313",
   "role": "OWNER",
   "phone": "01018785270",
   "address": "포르투갈 마데이라"
@@ -50,7 +50,7 @@ Content-Type: application/json
   "name": "음바페",
   "email": "french@paris.com",
   "nickname": "ninja",
-  "password": "1234",
+  "password": "1234@1313",
   "role": "CUSTOMER",
   "phone": "01013134646",
   "address": "스페인 마드리드"
@@ -64,7 +64,7 @@ Content-Type: application/json
   "name": "홀란드",
   "email": "haaland@mancity.com",
   "nickname": "humbleGuy",
-  "password": "1234",
+  "password": "1234@1313",
   "role": "CUSTOMER",
   "phone": "01078789898",
   "address": "노르웨이 요크셔"
@@ -78,7 +78,7 @@ Content-Type: application/json
   "name": "제라드",
   "email": "wegoNorwich@liverpool.com",
   "nickname": "ihateDembaBa",
-  "password": "1234",
+  "password": "1234@1313",
   "role": "CUSTOMER",
   "phone": "01088888888",
   "address": "잉글랜드 리버풀"
@@ -90,7 +90,7 @@ Content-Type: application/json
 
 {
   "email" : "hong@example.com",
-  "password" : "1234"
+  "password" : "1234@1313"
 }
 > {%
 var cookieHeader = response.headers.valueOf("Set-Cookie");
@@ -112,8 +112,8 @@ Content-Type: application/json
 Cookies: ignore
 
 {
-  "email" : "french@paris.com",
-  "password" : "1234"
+  "email" : "ronaldo@goat.com",
+  "password" : "1234!112"
 }
 > {%
   var cookieHeader = response.headers.valueOf("Set-Cookie");
@@ -137,7 +137,7 @@ Cookies: ignore
 
 {
   "email" : "christiano@ronaldo.com",
-  "password" : "1234"
+  "password" : "1234@1313"
 }
 > {%
   var cookieHeader = response.headers.valueOf("Set-Cookie");
@@ -160,7 +160,7 @@ Cookies: ignore
 
 {
   "email" : "go@example.com",
-  "password" : "1234"
+  "password" : "1234@1313"
 }
 > {%
   var cookieHeader = response.headers.valueOf("Set-Cookie");
@@ -178,6 +178,49 @@ Cookies: ignore
 
 ### 여기까지 더미 회원 데이터
 
+###지역 생성
+POST http://localhost:8080/stores/regions?region=대구
+Content-Type: application/json
+Authorization: {{master_cookie}}
+
+> {%
+ client.log("바디 정보 :"+response.body)
+ %}
+
+###지역 생성
+POST http://localhost:8080/stores/regions?region=대전
+Content-Type: application/json
+Authorization: {{master_cookie}}
+
+###지역 생성
+POST http://localhost:8080/stores/regions?region=서울
+Content-Type: application/json
+Authorization: {{master_cookie}}
+
+###지역 생성
+POST http://localhost:8080/stores/regions?region=부산
+Content-Type: application/json
+Authorization: {{master_cookie}}
+
+###지역 생성
+POST http://localhost:8080/stores/regions?region=광주
+Content-Type: application/json
+Authorization: {{master_cookie}}
+
+####가게 생성
+#POST http://localhost:8080/stores
+#Content-Type: application/json
+#Authorization: {{master_cookie}}
+#
+#{
+#  "name" : "제육의 신",
+#  "region" : [""],
+#  "storeCategory": [""],
+#  "number": "",
+#  "owner" : ,
+#  "address": "경상북도 구미"
+#}
+
 
 ### 사용자 정보 수정
 PUT http://localhost:8080/users/1
@@ -194,14 +237,14 @@ Authorization: {{master_cookie}}
   "address": "여기 내 마음속"
 }
 
-### 사용자 삭제
-DELETE http://localhost:8080/users/1
-Content-Type: application/json
-Authorization: {{master_cookie}}
-
-{
-  "password": "1234"
-}
+#### 사용자 삭제
+#DELETE http://localhost:8080/users/1
+#Content-Type: application/json
+#Authorization: {{master_cookie}}
+#
+#{
+#  "password": "1234"
+#}
 
 ### 특정 사용자 조회 (관리자 권한 필요)
 GET http://localhost:8080/users/1
