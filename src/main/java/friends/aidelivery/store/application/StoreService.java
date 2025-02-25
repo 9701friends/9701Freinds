@@ -11,8 +11,10 @@ import friends.aidelivery.store.domain.StoreCategory;
 import friends.aidelivery.store.domain.repository.RegionRepository;
 import friends.aidelivery.store.domain.repository.StoreCategoryMappingRepository;
 import friends.aidelivery.store.domain.repository.StoreCategoryRepository;
+import friends.aidelivery.store.domain.repository.StoreRegionMappingRepository;
 import friends.aidelivery.store.domain.repository.StoreRepository;
 import friends.aidelivery.store.exception.StoreNotFoundException;
+import friends.aidelivery.store.infrastructure.jpa.StoreRegionMappingJpaRepository;
 import friends.aidelivery.user.domain.User;
 import friends.aidelivery.user.domain.repository.UserRepository;
 import java.math.BigDecimal;
@@ -40,6 +42,7 @@ public class StoreService {
     private final RegionRepository regionRepository;
     private final StoreCategoryMappingRepository storeCategoryMappingRepository;
     private final UserRepository userRepository;
+    private final StoreRegionMappingRepository storeRegionMappingRepository;
 
     public StoreResponseDto createStore(UserDetailsImpl userDetails, StoreRequestDto requestDto) {
         /**
@@ -76,6 +79,16 @@ public class StoreService {
 
         List<StoreResponseDto> responseDtoList = storePage.stream().map(StoreResponseDto::of)
             .toList();
+        return new PageImpl<>(responseDtoList, pageable, storePage.getTotalElements());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<StoreResponseDto> getStoresByRegion(UUID regionUUID, String sortBy, int page, int size, boolean isAsc) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Store> storePage = storeRegionMappingRepository.findStoresByRegionId(regionUUID,sortBy,isAsc,pageable);
+
+        List<StoreResponseDto> responseDtoList = storePage.stream().map(StoreResponseDto::of).toList();
         return new PageImpl<>(responseDtoList, pageable, storePage.getTotalElements());
     }
 
@@ -194,4 +207,6 @@ public class StoreService {
         return storeRepository.findById(storeId)
             .orElseThrow(() -> new StoreNotFoundException(storeId));
     }
+
+
 }
