@@ -53,17 +53,15 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
 
-        // 기본 설정인 Session 방식은 사용하지 않고 JWT 방식을 사용하기 위한 설정
         http.sessionManagement(sessionManagement ->
             sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
         http.authorizeHttpRequests(authorizeHttpRequests ->
             authorizeHttpRequests
-                //.requestMatchers("/**").permitAll() //개발 임시 인증 토큰 허용
-                .requestMatchers("/admins/**").hasAnyAuthority("MASTER",
-                    "MANAGER") // hasAuthority대신 hasRole을 쓰면 PREFIX로 ROLE_이 붙어버려서 계속 오류났음
+                .requestMatchers("/admins/**").hasAnyAuthority("MASTER", "MANAGER")
                 .requestMatchers("/users/login", "/users/signIn").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
         );
 
