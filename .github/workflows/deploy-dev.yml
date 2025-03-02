@@ -59,12 +59,12 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       # 13 ECR에서 사용할 태그 정의
-      #      - name: Tag Docker Image
-      #        run: docker tag aidelivery ${{ secrets.ECR_REGISTRY }}/aidelivery:latest
+      - name: Tag Docker Image
+        run: docker tag aidelivery:latest ${{ secrets.ECR_REGISTRY }}:latest
 
       # 14 ECR에 Docker Image Push
       - name: Push Docker Image to Amazon ECR
-        run: docker push ${{ secrets.ECR_REGISTRY }}/aidelivery:latest
+        run: docker push ${{ secrets.ECR_REGISTRY }}:latest
 
       #  🔥 ECR 푸시 단계 완료 🔥
 
@@ -86,7 +86,7 @@ jobs:
             sudo docker-compose down
             
             # 18 ECR에서 최신 이미지 가져오기
-            sudo docker pull ${{ secrets.ECR_REGISTRY }}/aidelivery:latest
+            sudo docker pull ${{ secrets.ECR_REGISTRY }}:latest
             
             # 19 docker-compose 환경 변수 주입 및 실행
             sudo docker-compose up -d \
