@@ -2,4 +2,4 @@ spring:
   application:
     name: AiDelivery
   profiles:
-    active: local
+    active: dev

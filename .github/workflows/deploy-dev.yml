@@ -1,0 +1,102 @@
+# 1 Workflow 이름
+name: feature/cicd Branch CI/CD with Docker & ECR
+
+# 2 feature/cicd 브랜치에 push 될 때 실행
+on:
+  push:
+    branches:
+      - feature/cicd
+
+# 3 Jobs 정의
+jobs:
+  build:
+    # 4 빌드할 환경 지정 (Ubuntu 22.04 사용)
+    runs-on: ubuntu-22.04
+
+    steps:
+      # 5 코드 체크아웃 (현재 브랜치의 코드 가져오기)
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 6 JDK 17 설치
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      # 7 Gradle 실행 권한 부여 (Linux에서 실행 가능하도록)
+      - name: Grant execute permission for Gradlew
+        run: chmod +x gradlew
+
+      # 8 Gradle Build 실행 (테스트 제외)
+      - name: Build with Gradle (Skip Tests)
+        run: ./gradlew clean build -x test
+
+      # 9 Docker Build 실행 (JAR 포함된 이미지 생성)
+      - name: Build Docker Image
+        run: docker build -t aidelivery .
+
+      #  🔥 빌드 단계 완료 🔥
+
+  push_to_ecr:
+    # 10 build Job이 끝난 후 실행
+    needs: build
+    runs-on: ubuntu-22.04
+
+    steps:
+      # 11 AWS 로그인 (ECR 사용을 위한 인증)
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2 # AWS 리전 (서울)
+
+      # 12 ECR 로그인
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # 13 ECR에서 사용할 태그 정의
+      - name: Tag Docker Image
+        run: docker tag aidelivery:latest ${{ secrets.ECR_REGISTRY }}/aidelivery:latest
+
+      # 14 ECR에 Docker Image Push
+      - name: Push Docker Image to Amazon ECR
+        run: docker push ${{ secrets.ECR_REGISTRY }}/aidelivery:latest
+
+      #  🔥 ECR 푸시 단계 완료 🔥
+
+  deploy:
+    # 15 ECR 푸시 후 실행
+    needs: push_to_ecr
+    runs-on: ubuntu-latest
+
+    steps:
+      # 16 EC2 서버에 SSH 접속 후 실행
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # 17 기존 컨테이너 종료 및 삭제
+            sudo docker-compose down
+            
+            # 18 ECR에서 최신 이미지 가져오기
+            sudo docker pull ${{ secrets.ECR_REGISTRY }}/aidelivery:latest
+            
+            # 19 docker-compose 환경 변수 주입 및 실행
+            sudo docker-compose up -d \
+              -e DB_NAME=${{ secrets.DB_NAME }} \
+              -e DB_USER=${{ secrets.DB_USER }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
+              -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
+              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+              -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
+              -e GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}
+
+      #  🔥 배포 단계 완료 🔥
