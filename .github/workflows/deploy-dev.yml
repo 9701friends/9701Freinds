@@ -33,19 +33,15 @@ jobs:
       - name: Build with Gradle (Skip Tests)
         run: ./gradlew clean build -x test
 
-      # 9 Docker Build 실행 (JAR 포함된 이미지 생성)
-      - name: Build Docker Image
-        run: docker build -t aidelivery .
-
       #  🔥 빌드 단계 완료 🔥
 
   push_to_ecr:
-    # 10 build Job이 끝난 후 실행
+    # 9 build Job이 끝난 후 실행
     needs: build
     runs-on: ubuntu-22.04
 
     steps:
-      # 11 AWS 로그인 (ECR 사용을 위한 인증)
+      # 10 AWS 로그인 (ECR 사용을 위한 인증)
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -53,13 +49,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2 # AWS 리전 (서울)
 
-      # 12 ECR 로그인
+      # 11 ECR 로그인
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      # 12 Docker Build 실행 (JAR 포함된 이미지 생성)
+      - name: Build Docker Image
+        run: docker build -t aidelivery .
+
       # 13 ECR에서 사용할 태그 정의
-      - name: Tag Docker Image
+      - name: Tag Docker Image for ECR
         run: docker tag aidelivery:latest ${{ secrets.ECR_REGISTRY }}:latest
 
       # 14 ECR에 Docker Image Push
