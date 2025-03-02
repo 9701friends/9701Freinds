@@ -15,7 +15,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
 
   app:
-    image: ${ECR_REGISTRY}:latest
+    image: ${ECR_REGISTRY}/aidelivery:latest
     container_name: spring_app
     ports:
       - "8080:8080"

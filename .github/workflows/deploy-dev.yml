@@ -54,11 +54,11 @@ jobs:
 
       # 13 ECR에서 사용할 태그 정의
       - name: Tag Docker Image for ECR
-        run: docker tag aidelivery:latest ${{ secrets.ECR_REGISTRY }}:latest
+        run: docker tag aidelivery:latest ${{ secrets.ECR_REGISTRY }}/aidelivery:latest
 
       # 14 ECR에 Docker Image Push
       - name: Push Docker Image to Amazon ECR
-        run: docker push ${{ secrets.ECR_REGISTRY }}:latest
+        run: docker push ${{ secrets.ECR_REGISTRY }}/aidelivery:latest
 
   #  🔥 ECR 푸시 단계 완료 🔥
 
@@ -68,20 +68,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      # 16 AWS 로그인 (ECR 사용을 위한 인증)
-      - name: Configure AWS Credentials (again for deploy)
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2 # AWS 리전 (서울)
-
-      # 17 ECR 로그인 (배포용)
-      - name: Log in to Amazon ECR (again for deploy)
-        id: login-ecr-deploy
-        uses: aws-actions/amazon-ecr-login@v1
-
-      # 18 EC2 서버에 SSH 접속 후 실행
+      # 16 EC2 서버에 SSH 접속 후 실행
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -89,16 +76,19 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 19 docker-compose.yml 및 .env 파일 위치로 이동
+            # 17 docker-compose.yml 및 .env 파일 위치로 이동
             cd /home/ubuntu/aidelivery
             
-            # 20 기존 컨테이너 종료 및 삭제
-            sudo docker compose down
+            # 18 기존 컨테이너 종료 및 삭제
+            docker compose down
+            
+            # 19 aws cli로 ECR 인증 토큰 발급
+            aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
             
             # 21 ECR에서 최신 이미지 가져오기
-            sudo docker pull ${{ secrets.ECR_REGISTRY }}:latest
+            docker pull ${{ secrets.ECR_REGISTRY }}/aidelivery:latest
             
             # 22 docker compose 환경 변수 주입 및 실행
-            sudo docker compose up -d
+            docker compose up -d
 
       #  🔥 배포 단계 완료 🔥
