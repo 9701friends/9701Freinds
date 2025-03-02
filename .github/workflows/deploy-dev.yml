@@ -83,7 +83,7 @@ jobs:
             docker compose down
             
             # 19 aws cli로 ECR 인증 토큰 발급
-            aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
             
             # 21 ECR에서 최신 이미지 가져오기
             docker pull ${{ secrets.ECR_REGISTRY }}/aidelivery:latest
