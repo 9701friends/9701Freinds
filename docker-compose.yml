@@ -7,18 +7,22 @@ services:
     restart: always
     ports:
       - "5432:5432"
+    env_file:
+      - .env
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
 
   app:
-    image: aidelivery
+    image: ${ECR_REGISTRY}:latest
     container_name: spring_app
     ports:
       - "8080:8080"
     depends_on:
       - postgres_db
+    env_file:
+      - .env
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
