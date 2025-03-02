@@ -35,7 +35,7 @@ jobs:
 
       # 9 Docker Build 실행 (JAR 포함된 이미지 생성)
       - name: Build Docker Image
-        run: docker build -t aidelivery .
+        run: docker build -t aidelivery:latest .
 
       #  🔥 빌드 단계 완료 🔥
 
